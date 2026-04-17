@@ -48,12 +48,28 @@ export async function apiCreateClient(token, payload) {
   return apiRequest("/api/v1/clients", { method: "POST", token, body: payload })
 }
 
+export async function apiUpdateClient(token, clientId, payload) {
+  return apiRequest(`/api/v1/clients/${clientId}`, { method: "PATCH", token, body: payload })
+}
+
+export async function apiDeleteClient(token, clientId) {
+  return apiRequest(`/api/v1/clients/${clientId}`, { method: "DELETE", token })
+}
+
 export async function apiListServices(token) {
   return apiRequest("/api/v1/services", { method: "GET", token })
 }
 
 export async function apiCreateService(token, payload) {
   return apiRequest("/api/v1/services", { method: "POST", token, body: payload })
+}
+
+export async function apiUpdateService(token, serviceId, payload) {
+  return apiRequest(`/api/v1/services/${serviceId}`, { method: "PATCH", token, body: payload })
+}
+
+export async function apiDeleteService(token, serviceId) {
+  return apiRequest(`/api/v1/services/${serviceId}`, { method: "DELETE", token })
 }
 
 export async function apiListAppointments(token) {
@@ -64,14 +80,28 @@ export async function apiCreateAppointment(token, payload) {
   return apiRequest("/api/v1/appointments", { method: "POST", token, body: payload })
 }
 
+export async function apiUpdateAppointment(token, appointmentId, payload) {
+  return apiRequest(`/api/v1/appointments/${appointmentId}`, { method: "PATCH", token, body: payload })
+}
+
+export async function apiDeleteAppointment(token, appointmentId) {
+  return apiRequest(`/api/v1/appointments/${appointmentId}`, { method: "DELETE", token })
+}
+
 export default {
   apiRequest,
   apiLogin,
   apiMe,
   apiListClients,
   apiCreateClient,
+  apiUpdateClient,
+  apiDeleteClient,
   apiListServices,
   apiCreateService,
+  apiUpdateService,
+  apiDeleteService,
   apiListAppointments,
   apiCreateAppointment,
+  apiUpdateAppointment,
+  apiDeleteAppointment,
 }
