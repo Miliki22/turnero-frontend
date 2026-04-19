@@ -1,12 +1,18 @@
 import { NavLink, Outlet, useNavigate } from "react-router-dom"
 import { clearToken, getCachedMe, getToken } from "../lib/auth"
 
-const NAV_ITEMS = [
-  { to: "/dashboard", label: "Dashboard" },
-  { to: "/clients", label: "Clientes" },
-  { to: "/services", label: "Servicios" },
-  { to: "/appointments", label: "Turnos" },
-]
+const NAV_BY_ROLE = {
+  admin: [
+    { to: "/dashboard", label: "Panel" },
+    { to: "/clients", label: "Clientes" },
+    { to: "/services", label: "Servicios" },
+    { to: "/appointments", label: "Turnos" },
+  ],
+  client: [
+    { to: "/services", label: "Servicios" },
+    { to: "/my-appointments", label: "Mis turnos" },
+  ],
+}
 
 export default function AppLayout() {
   const nav = useNavigate()
@@ -18,6 +24,7 @@ export default function AppLayout() {
 
   const me = getCachedMe()
   const isAuthed = Boolean(getToken())
+  const navItems = NAV_BY_ROLE[me?.role] || []
 
   return (
     <div className="min-h-screen bg-neutral-950 text-neutral-100">
@@ -27,7 +34,7 @@ export default function AppLayout() {
             <div className="text-lg font-semibold">Turnero Kala</div>
             {isAuthed ? (
               <nav className="flex items-center gap-2 text-sm">
-                {NAV_ITEMS.map((item) => (
+                {navItems.map((item) => (
                   <NavLink
                     key={item.to}
                     to={item.to}

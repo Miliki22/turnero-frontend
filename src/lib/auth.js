@@ -26,3 +26,9 @@ export function setCachedMe(me) {
     // ignore
   }
 }
+
+export function getDefaultPathByRole(role) {
+  if (role === "admin") return "/dashboard"
+  if (role === "client") return "/my-appointments"
+  return "/services"
+}

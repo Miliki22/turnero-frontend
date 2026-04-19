@@ -17,7 +17,7 @@ async function apiRequest(path, { method = "GET", token, body } = {}) {
 
   if (!res.ok) {
     if (res.status === 401 || res.status === 403) {
-      const message = data?.detail || "Unauthorized"
+      const message = data?.detail || "No autorizado."
       const err = new Error(message)
       err.status = res.status
       throw err
@@ -34,6 +34,21 @@ async function apiRequest(path, { method = "GET", token, body } = {}) {
 
 export async function apiLogin(email, password) {
   return apiRequest("/api/v1/auth/login", { method: "POST", body: { email, password } })
+}
+
+export async function apiRegister(payload) {
+  return apiRequest("/api/v1/auth/register", { method: "POST", body: payload })
+}
+
+export async function apiForgotPassword(email) {
+  return apiRequest("/api/v1/auth/forgot-password", { method: "POST", body: { email } })
+}
+
+export async function apiResetPassword(token, newPassword) {
+  return apiRequest("/api/v1/auth/reset-password", {
+    method: "POST",
+    body: { token, new_password: newPassword },
+  })
 }
 
 export async function apiMe(token) {
@@ -80,6 +95,14 @@ export async function apiCreateAppointment(token, payload) {
   return apiRequest("/api/v1/appointments", { method: "POST", token, body: payload })
 }
 
+export async function apiListMyAppointments(token) {
+  return apiRequest("/api/v1/appointments/me", { method: "GET", token })
+}
+
+export async function apiCreateMyAppointment(token, payload) {
+  return apiRequest("/api/v1/appointments", { method: "POST", token, body: payload })
+}
+
 export async function apiUpdateAppointment(token, appointmentId, payload) {
   return apiRequest(`/api/v1/appointments/${appointmentId}`, { method: "PATCH", token, body: payload })
 }
@@ -91,6 +114,9 @@ export async function apiDeleteAppointment(token, appointmentId) {
 export default {
   apiRequest,
   apiLogin,
+  apiRegister,
+  apiForgotPassword,
+  apiResetPassword,
   apiMe,
   apiListClients,
   apiCreateClient,
@@ -102,6 +128,8 @@ export default {
   apiDeleteService,
   apiListAppointments,
   apiCreateAppointment,
+  apiListMyAppointments,
+  apiCreateMyAppointment,
   apiUpdateAppointment,
   apiDeleteAppointment,
 }

@@ -1,30 +1,40 @@
 import { useState } from "react"
 import { Link, useNavigate } from "react-router-dom"
-import { apiLogin, apiMe } from "../lib/api"
-import { getDefaultPathByRole, setCachedMe, setToken } from "../lib/auth"
+import { apiMe, apiRegister } from "../lib/api"
+import { setCachedMe, setToken } from "../lib/auth"
 
-export default function LoginPage() {
+export default function RegisterPage() {
   const nav = useNavigate()
-  const [email, setEmail] = useState("admin@kala.com")
-  const [password, setPassword] = useState("TuPasswordSegura123")
+  const [fullName, setFullName] = useState("")
+  const [phone, setPhone] = useState("")
+  const [email, setEmail] = useState("")
+  const [password, setPassword] = useState("")
   const [error, setError] = useState("")
   const [loading, setLoading] = useState(false)
 
   async function onSubmit(e) {
     e.preventDefault()
+    if (loading) return
+
     setError("")
     setLoading(true)
     try {
-      const res = await apiLogin(email, password)
+      const res = await apiRegister({
+        full_name: fullName.trim(),
+        phone: phone.trim(),
+        email: email.trim(),
+        password,
+      })
+
       const token = res?.access_token || res?.token
       if (!token) throw new Error("No se recibió token")
 
       setToken(token)
       const me = await apiMe(token)
       setCachedMe(me)
-      nav(getDefaultPathByRole(me?.role), { replace: true })
+      nav("/my-appointments", { replace: true })
     } catch (err) {
-      setError(err?.message || "Login inválido o API no responde.")
+      setError(err?.message || "No se pudo registrar.")
     } finally {
       setLoading(false)
     }
@@ -32,17 +42,36 @@ export default function LoginPage() {
 
   return (
     <div className="mx-auto flex min-h-screen max-w-md flex-col justify-center p-6">
-      <h1 className="text-3xl font-semibold">Turnero Kala</h1>
-      <p className="mt-2 text-sm text-neutral-400">Ingresá para administrar o reservar turnos</p>
+      <h1 className="text-3xl font-semibold">Registro</h1>
+      <p className="mt-2 text-sm text-neutral-400">Creá tu cuenta para reservar turnos</p>
 
       <form onSubmit={onSubmit} className="mt-6 space-y-4 rounded-2xl border border-neutral-800 bg-neutral-900/40 p-5">
         <div>
+          <label className="text-sm text-neutral-300">Nombre completo</label>
+          <input
+            className="mt-1 w-full rounded-xl border border-neutral-800 bg-neutral-950 px-3 py-2 outline-none"
+            value={fullName}
+            onChange={(e) => setFullName(e.target.value)}
+          />
+        </div>
+
+        <div>
+          <label className="text-sm text-neutral-300">Teléfono</label>
+          <input
+            className="mt-1 w-full rounded-xl border border-neutral-800 bg-neutral-950 px-3 py-2 outline-none"
+            value={phone}
+            onChange={(e) => setPhone(e.target.value)}
+          />
+        </div>
+
+        <div>
           <label className="text-sm text-neutral-300">Email</label>
           <input
+            type="email"
             className="mt-1 w-full rounded-xl border border-neutral-800 bg-neutral-950 px-3 py-2 outline-none"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            autoComplete="username"
+            autoComplete="email"
           />
         </div>
 
@@ -53,7 +82,7 @@ export default function LoginPage() {
             className="mt-1 w-full rounded-xl border border-neutral-800 bg-neutral-950 px-3 py-2 outline-none"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            autoComplete="current-password"
+            autoComplete="new-password"
           />
         </div>
 
@@ -63,17 +92,15 @@ export default function LoginPage() {
           disabled={loading}
           className="w-full rounded-xl bg-neutral-100 px-4 py-2 font-medium text-neutral-950 disabled:opacity-60"
         >
-          {loading ? "Ingresando..." : "Ingresar"}
+          {loading ? "Registrando..." : "Registrarme"}
         </button>
 
-        <div className="flex items-center justify-between text-sm">
-          <Link className="text-neutral-300 underline" to="/register">
-            Registrate
+        <p className="text-sm text-neutral-400">
+          ¿Ya tenés cuenta?{" "}
+          <Link className="text-neutral-200 underline" to="/login">
+            Ingresá
           </Link>
-          <Link className="text-neutral-300 underline" to="/forgot-password">
-            Olvidé mi contraseña
-          </Link>
-        </div>
+        </p>
       </form>
     </div>
   )
