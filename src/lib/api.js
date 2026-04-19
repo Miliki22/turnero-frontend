@@ -111,6 +111,18 @@ export async function apiDeleteAppointment(token, appointmentId) {
   return apiRequest(`/api/v1/appointments/${appointmentId}`, { method: "DELETE", token })
 }
 
+export async function apiGoogleCalendarStatus(token) {
+  return apiRequest("/api/v1/integrations/google/status", { method: "GET", token })
+}
+
+export async function apiGoogleCalendarConnect(token) {
+  return apiRequest("/api/v1/integrations/google/connect", { method: "GET", token })
+}
+
+export async function apiGoogleCalendarDisconnect(token) {
+  return apiRequest("/api/v1/integrations/google/disconnect", { method: "POST", token })
+}
+
 export default {
   apiRequest,
   apiLogin,
@@ -132,4 +144,7 @@ export default {
   apiCreateMyAppointment,
   apiUpdateAppointment,
   apiDeleteAppointment,
+  apiGoogleCalendarStatus,
+  apiGoogleCalendarConnect,
+  apiGoogleCalendarDisconnect,
 }

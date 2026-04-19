@@ -7,6 +7,7 @@ const NAV_BY_ROLE = {
     { to: "/clients", label: "Clientes" },
     { to: "/services", label: "Servicios" },
     { to: "/appointments", label: "Turnos" },
+    { to: "/settings/integrations", label: "Integraciones" },
   ],
   client: [
     { to: "/services", label: "Servicios" },

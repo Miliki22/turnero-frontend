@@ -9,6 +9,7 @@ import ClientsPage from "./pages/ClientsPage"
 import ServicesPage from "./pages/ServicesPage"
 import AppointmentsPage from "./pages/AppointmentsPage"
 import MyAppointmentsPage from "./pages/MyAppointmentsPage"
+import IntegrationsPage from "./pages/IntegrationsPage"
 import RequireAuth from "./components/RequireAuth"
 import RequireRole from "./components/RequireRole"
 import { getCachedMe, getDefaultPathByRole } from "./lib/auth"
@@ -69,6 +70,16 @@ export const router = createBrowserRouter([
         element: (
           <RequireAuth>
             <ServicesPage />
+          </RequireAuth>
+        ),
+      },
+      {
+        path: "/settings/integrations",
+        element: (
+          <RequireAuth>
+            <RequireRole allowedRoles={["admin"]} fallbackTo="/my-appointments">
+              <IntegrationsPage />
+            </RequireRole>
           </RequireAuth>
         ),
       },
