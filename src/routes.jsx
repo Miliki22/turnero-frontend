@@ -10,6 +10,8 @@ import ServicesPage from "./pages/ServicesPage"
 import AppointmentsPage from "./pages/AppointmentsPage"
 import MyAppointmentsPage from "./pages/MyAppointmentsPage"
 import IntegrationsPage from "./pages/IntegrationsPage"
+import CalendarPage from "./pages/CalendarPage"
+import ClientPanelPage from "./pages/ClientPanelPage"
 import RequireAuth from "./components/RequireAuth"
 import RequireRole from "./components/RequireRole"
 import { getCachedMe, getDefaultPathByRole } from "./lib/auth"
@@ -56,6 +58,16 @@ export const router = createBrowserRouter([
         ),
       },
       {
+        path: "/clients/:id",
+        element: (
+          <RequireAuth>
+            <RequireRole allowedRoles={["admin"]} fallbackTo="/my-appointments">
+              <ClientPanelPage />
+            </RequireRole>
+          </RequireAuth>
+        ),
+      },
+      {
         path: "/appointments",
         element: (
           <RequireAuth>
@@ -70,6 +82,14 @@ export const router = createBrowserRouter([
         element: (
           <RequireAuth>
             <ServicesPage />
+          </RequireAuth>
+        ),
+      },
+      {
+        path: "/calendar",
+        element: (
+          <RequireAuth>
+            <CalendarPage />
           </RequireAuth>
         ),
       },

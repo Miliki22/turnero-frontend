@@ -307,12 +307,12 @@ export default function AppointmentsPage() {
             <table className="w-full text-left text-sm">
               <thead className="text-neutral-400">
                 <tr>
-                  <th className="pb-2">ID</th>
-                  <th className="pb-2">Cliente</th>
-                  <th className="pb-2">Servicio</th>
-                  <th className="pb-2">Fecha</th>
-                  <th className="pb-2">Hora</th>
-                  {isAdmin ? <th className="pb-2 text-right">Acciones</th> : null}
+                  <th className="w-20 min-w-20 px-2 pb-2 text-center">ID</th>
+                  <th className="px-3 pb-2">Cliente</th>
+                  <th className="px-3 pb-2">Servicio</th>
+                  <th className="px-3 pb-2">Fecha</th>
+                  <th className="px-3 pb-2">Hora</th>
+                  {isAdmin ? <th className="px-3 pb-2 text-right">Acciones</th> : null}
                 </tr>
               </thead>
               <tbody>
@@ -326,8 +326,8 @@ export default function AppointmentsPage() {
 
                   return (
                     <tr key={appointment.id ?? idx} className="border-t border-neutral-800 align-top">
-                      <td className="py-3">{appointment.id ?? "-"}</td>
-                      <td className="py-3">
+                      <td className="w-20 min-w-20 px-2 py-3 text-center">{appointment.id ?? "-"}</td>
+                      <td className="px-3 py-3">
                         {isEditing ? (
                           <select
                             className="w-full rounded-md border border-neutral-700 bg-neutral-950 px-2 py-1"
@@ -345,7 +345,7 @@ export default function AppointmentsPage() {
                           clientsById[appointment.client_id] ?? "-"
                         )}
                       </td>
-                      <td className="py-3">
+                      <td className="px-3 py-3">
                         {isEditing ? (
                           <select
                             className="w-full rounded-md border border-neutral-700 bg-neutral-950 px-2 py-1"
@@ -363,7 +363,7 @@ export default function AppointmentsPage() {
                           servicesById[appointment.service_id] ?? "-"
                         )}
                       </td>
-                      <td className="py-3">
+                      <td className="px-3 py-3">
                         {isEditing ? (
                           <input
                             type="datetime-local"
@@ -375,9 +375,9 @@ export default function AppointmentsPage() {
                           dateText
                         )}
                       </td>
-                      <td className="py-3">{isEditing ? "-" : timeText}</td>
+                      <td className="px-3 py-3">{isEditing ? "-" : timeText}</td>
                       {isAdmin ? (
-                        <td className="py-3 text-right">
+                        <td className="px-3 py-3 text-right">
                           <div className="flex justify-end gap-2">
                             {isEditing ? (
                               <>

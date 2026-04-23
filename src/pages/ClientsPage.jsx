@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react"
+import { useNavigate } from "react-router-dom"
 import { apiCreateClient, apiDeleteClient, apiListClients, apiMe, apiUpdateClient } from "../lib/api"
 import { getCachedMe, getToken, setCachedMe } from "../lib/auth"
 
@@ -10,6 +11,7 @@ function getList(data) {
 }
 
 export default function ClientsPage() {
+  const navigate = useNavigate()
   const token = getToken()
   const cachedMe = getCachedMe()
   const [fullName, setFullName] = useState("")
@@ -231,7 +233,14 @@ export default function ClientsPage() {
                             onChange={(e) => setEditValues((prev) => ({ ...prev, fullName: e.target.value }))}
                           />
                         ) : (
-                          client.full_name ?? client.name ?? "-"
+                          <button
+                            type="button"
+                            onClick={() => navigate(`/clients/${client.id}`)}
+                            disabled={!client.id}
+                            className="text-left text-neutral-100 underline decoration-neutral-600 underline-offset-2 hover:text-white disabled:no-underline disabled:opacity-50"
+                          >
+                            {client.full_name ?? client.name ?? "-"}
+                          </button>
                         )}
                       </td>
                       <td className="py-3">
@@ -270,6 +279,14 @@ export default function ClientsPage() {
                       {isAdmin ? (
                         <td className="py-3 text-right">
                           <div className="flex justify-end gap-2">
+                            <button
+                              type="button"
+                              onClick={() => navigate(`/clients/${client.id}`)}
+                              disabled={rowSaving || rowDeleting || !client.id}
+                              className="rounded-md bg-neutral-800 px-3 py-1 text-xs hover:bg-neutral-700 disabled:opacity-60"
+                            >
+                              Ver
+                            </button>
                             {isEditing ? (
                               <>
                                 <button

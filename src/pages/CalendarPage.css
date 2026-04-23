@@ -1,0 +1,56 @@
+.kala-calendar .fc {
+  --fc-border-color: #262626;
+  --fc-neutral-bg-color: rgba(23, 23, 23, 0.45);
+  --fc-page-bg-color: transparent;
+  --fc-list-event-hover-bg-color: #171717;
+  --fc-today-bg-color: rgba(56, 189, 248, 0.08);
+  --fc-now-indicator-color: #f97316;
+}
+
+.kala-calendar .fc .fc-toolbar-title {
+  color: #f5f5f5;
+  font-size: 1.05rem;
+  font-weight: 600;
+}
+
+.kala-calendar .fc .fc-button {
+  background: rgba(38, 38, 38, 0.8);
+  border: 1px solid #404040;
+  color: #e5e5e5;
+  box-shadow: none;
+  text-transform: capitalize;
+}
+
+.kala-calendar .fc .fc-button:hover,
+.kala-calendar .fc .fc-button:focus {
+  background: rgba(64, 64, 64, 0.9);
+  border-color: #525252;
+}
+
+.kala-calendar .fc .fc-button.fc-button-active {
+  background: #f5f5f5;
+  border-color: #f5f5f5;
+  color: #111827;
+}
+
+.kala-calendar .fc .fc-col-header-cell-cushion,
+.kala-calendar .fc .fc-timegrid-axis-cushion,
+.kala-calendar .fc .fc-timegrid-slot-label-cushion,
+.kala-calendar .fc .fc-timegrid-slot-label {
+  color: #cfcfcf;
+}
+
+.kala-calendar .fc .fc-timegrid-slot,
+.kala-calendar .fc .fc-scrollgrid,
+.kala-calendar .fc .fc-timegrid-divider,
+.kala-calendar .fc .fc-theme-standard td,
+.kala-calendar .fc .fc-theme-standard th {
+  border-color: #262626;
+}
+
+.kala-calendar .fc .fc-event {
+  border-width: 1px;
+  border-radius: 8px;
+  padding: 1px 3px;
+  font-size: 0.78rem;
+}

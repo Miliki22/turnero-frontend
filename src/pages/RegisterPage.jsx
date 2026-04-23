@@ -1,7 +1,6 @@
 import { useState } from "react"
 import { Link, useNavigate } from "react-router-dom"
-import { apiMe, apiRegister } from "../lib/api"
-import { setCachedMe, setToken } from "../lib/auth"
+import { apiRegister } from "../lib/api"
 
 export default function RegisterPage() {
   const nav = useNavigate()
@@ -19,20 +18,15 @@ export default function RegisterPage() {
     setError("")
     setLoading(true)
     try {
-      const res = await apiRegister({
+      await apiRegister({
         full_name: fullName.trim(),
         phone: phone.trim(),
         email: email.trim(),
         password,
       })
 
-      const token = res?.access_token || res?.token
-      if (!token) throw new Error("No se recibió token")
-
-      setToken(token)
-      const me = await apiMe(token)
-      setCachedMe(me)
-      nav("/my-appointments", { replace: true })
+      const nextEmail = encodeURIComponent(email.trim())
+      nav(`/login?email=${nextEmail}&registered=1`, { replace: true })
     } catch (err) {
       setError(err?.message || "No se pudo registrar.")
     } finally {

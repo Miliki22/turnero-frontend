@@ -1,14 +1,24 @@
-import { useState } from "react"
-import { Link, useNavigate } from "react-router-dom"
+import { useEffect, useState } from "react"
+import { Link, useNavigate, useSearchParams } from "react-router-dom"
 import { apiLogin, apiMe } from "../lib/api"
 import { getDefaultPathByRole, setCachedMe, setToken } from "../lib/auth"
 
 export default function LoginPage() {
   const nav = useNavigate()
+  const [searchParams] = useSearchParams()
   const [email, setEmail] = useState("admin@kala.com")
   const [password, setPassword] = useState("TuPasswordSegura123")
   const [error, setError] = useState("")
+  const [notice, setNotice] = useState("")
   const [loading, setLoading] = useState(false)
+
+  useEffect(() => {
+    const emailFromQuery = searchParams.get("email")
+    const registered = searchParams.get("registered")
+
+    if (emailFromQuery) setEmail(emailFromQuery)
+    if (registered === "1") setNotice("Cuenta creada. Ingresá con tus credenciales.")
+  }, [searchParams])
 
   async function onSubmit(e) {
     e.preventDefault()
@@ -24,7 +34,7 @@ export default function LoginPage() {
       setCachedMe(me)
       nav(getDefaultPathByRole(me?.role), { replace: true })
     } catch (err) {
-      setError(err?.message || "Login inválido o API no responde.")
+      setError(err?.message || "Credenciales inválidas.")
     } finally {
       setLoading(false)
     }
@@ -36,6 +46,8 @@ export default function LoginPage() {
       <p className="mt-2 text-sm text-neutral-400">Ingresá para administrar o reservar turnos</p>
 
       <form onSubmit={onSubmit} className="mt-6 space-y-4 rounded-2xl border border-neutral-800 bg-neutral-900/40 p-5">
+        {notice ? <p className="text-sm text-emerald-300">{notice}</p> : null}
+
         <div>
           <label className="text-sm text-neutral-300">Email</label>
           <input

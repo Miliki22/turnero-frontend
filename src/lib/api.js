@@ -59,6 +59,10 @@ export async function apiListClients(token) {
   return apiRequest("/api/v1/clients", { method: "GET", token })
 }
 
+export async function apiClientServices(token) {
+  return apiRequest("/api/v1/client/services", { method: "GET", token })
+}
+
 export async function apiCreateClient(token, payload) {
   return apiRequest("/api/v1/clients", { method: "POST", token, body: payload })
 }
@@ -71,8 +75,29 @@ export async function apiDeleteClient(token, clientId) {
   return apiRequest(`/api/v1/clients/${clientId}`, { method: "DELETE", token })
 }
 
+export async function apiClientDashboard(token, clientId) {
+  return apiRequest(`/api/v1/clients/${clientId}/dashboard`, { method: "GET", token })
+}
+
 export async function apiListServices(token) {
   return apiRequest("/api/v1/services", { method: "GET", token })
+}
+
+export async function apiAvailability(token, serviceId, daysAhead = 14, includePastDays = 0) {
+  const query = new URLSearchParams({
+    service_id: String(serviceId),
+    days_ahead: String(daysAhead),
+    include_past_days: String(includePastDays),
+  })
+  return apiRequest(`/api/v1/availability?${query.toString()}`, { method: "GET", token })
+}
+
+export async function apiClientAvailability(token, serviceId, range = "week") {
+  const query = new URLSearchParams({
+    service_id: String(serviceId),
+    range: String(range),
+  })
+  return apiRequest(`/api/v1/client/availability?${query.toString()}`, { method: "GET", token })
 }
 
 export async function apiCreateService(token, payload) {
@@ -103,6 +128,14 @@ export async function apiCreateMyAppointment(token, payload) {
   return apiRequest("/api/v1/appointments", { method: "POST", token, body: payload })
 }
 
+export async function apiClientAppointments(token) {
+  return apiRequest("/api/v1/client/appointments", { method: "GET", token })
+}
+
+export async function apiCreateClientAppointment(token, payload) {
+  return apiRequest("/api/v1/client/appointments", { method: "POST", token, body: payload })
+}
+
 export async function apiUpdateAppointment(token, appointmentId, payload) {
   return apiRequest(`/api/v1/appointments/${appointmentId}`, { method: "PATCH", token, body: payload })
 }
@@ -131,10 +164,14 @@ export default {
   apiResetPassword,
   apiMe,
   apiListClients,
+  apiClientServices,
   apiCreateClient,
   apiUpdateClient,
   apiDeleteClient,
+  apiClientDashboard,
   apiListServices,
+  apiAvailability,
+  apiClientAvailability,
   apiCreateService,
   apiUpdateService,
   apiDeleteService,
@@ -142,6 +179,8 @@ export default {
   apiCreateAppointment,
   apiListMyAppointments,
   apiCreateMyAppointment,
+  apiClientAppointments,
+  apiCreateClientAppointment,
   apiUpdateAppointment,
   apiDeleteAppointment,
   apiGoogleCalendarStatus,
