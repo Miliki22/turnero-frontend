@@ -92,11 +92,19 @@ export async function apiAvailability(token, serviceId, daysAhead = 14, includeP
   return apiRequest(`/api/v1/availability?${query.toString()}`, { method: "GET", token })
 }
 
-export async function apiClientAvailability(token, serviceId, range = "week") {
-  const query = new URLSearchParams({
-    service_id: String(serviceId),
-    range: String(range),
-  })
+export async function apiClientAvailability(token, serviceId, options = "week") {
+  const params = { service_id: String(serviceId) }
+
+  if (typeof options === "string") {
+    params.range = options
+  } else if (options && typeof options === "object") {
+    Object.entries(options).forEach(([key, value]) => {
+      if (value === undefined || value === null || value === "") return
+      params[key] = String(value)
+    })
+  }
+
+  const query = new URLSearchParams(params)
   return apiRequest(`/api/v1/client/availability?${query.toString()}`, { method: "GET", token })
 }
 

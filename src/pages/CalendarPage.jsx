@@ -4,7 +4,14 @@ import dayGridPlugin from "@fullcalendar/daygrid"
 import interactionPlugin from "@fullcalendar/interaction"
 import timeGridPlugin from "@fullcalendar/timegrid"
 import esLocale from "@fullcalendar/core/locales/es"
-import { format, isValid, parseISO } from "date-fns"
+import {
+  addDays,
+  endOfWeek,
+  format,
+  isValid,
+  parseISO,
+  startOfWeek,
+} from "date-fns"
 import { es } from "date-fns/locale"
 import { useNavigate, useSearchParams } from "react-router-dom"
 import {
@@ -46,11 +53,7 @@ function getList(data) {
 
 function parseDate(value) {
   if (!value) return null
-
-  if (value instanceof Date) {
-    return Number.isNaN(value.getTime()) ? null : value
-  }
-
+  if (value instanceof Date) return Number.isNaN(value.getTime()) ? null : value
   if (typeof value !== "string") return null
   const parsed = parseISO(value.trim())
   return isValid(parsed) ? parsed : null
@@ -61,11 +64,24 @@ function pad(num) {
 }
 
 function toDateKey(date) {
-  return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`
+  return format(date, "yyyy-MM-dd")
 }
 
 function toTimeKey(date) {
   return `${pad(date.getHours())}:${pad(date.getMinutes())}`
+}
+
+function toApiDate(date) {
+  return format(date, "yyyy-MM-dd")
+}
+
+function normalizeErrorMessage(err, fallback) {
+  const raw = err?.message ?? err?.detail
+  if (typeof raw === "string" && raw.trim() && raw !== "[object Object]") {
+    const trimmed = raw.trim()
+    if (!trimmed.startsWith("{") && !trimmed.startsWith("[")) return trimmed
+  }
+  return fallback
 }
 
 function getDurationMinutes(value, fallback = 60) {
@@ -137,51 +153,67 @@ function buildTimeRows(durationMinutes) {
   return rows
 }
 
-function buildBusinessDaysFromToday(maxDays) {
-  const days = []
-  const current = new Date()
-  current.setHours(0, 0, 0, 0)
+function normalizeSlotStatus(slot) {
+  const status = String(slot?.status ?? "").toLowerCase()
+  if (status === "available") return "available"
+  if (status === "occupied") return "occupied"
 
-  while (days.length < maxDays) {
-    const dayNum = current.getDay()
-    if (dayNum >= 1 && dayNum <= 5) {
-      days.push({
-        key: toDateKey(current),
-        date: new Date(current),
-      })
-    }
-    current.setDate(current.getDate() + 1)
-  }
+  if (typeof slot?.occupied === "boolean") return slot.occupied ? "occupied" : "available"
+  if (typeof slot?.is_occupied === "boolean") return slot.is_occupied ? "occupied" : "available"
+  if (typeof slot?.available === "boolean") return slot.available ? "available" : "occupied"
+  if (typeof slot?.is_available === "boolean") return slot.is_available ? "available" : "occupied"
 
-  return days
+  return null
+}
+
+function collectSlotCandidates(raw) {
+  const direct = getList(raw?.slots)
+  if (direct.length) return direct
+
+  const asArray = getList(raw)
+  if (asArray.some((item) => item?.start_at || item?.starts_at || item?.start)) return asArray
+
+  const fromDays = []
+  getList(raw?.days).forEach((day) => {
+    const dayDate = day?.date ?? day?.day
+
+    getList(day?.slots).forEach((slot) => fromDays.push({ ...slot, _dayDate: dayDate }))
+    getList(day?.available_slots).forEach((slot) => {
+      const value = typeof slot === "string" ? { start: slot } : slot
+      fromDays.push({ ...value, status: "available", _dayDate: dayDate })
+    })
+    getList(day?.busy_slots).forEach((slot) => {
+      const value = typeof slot === "string" ? { start: slot } : slot
+      fromDays.push({ ...value, status: "occupied", _dayDate: dayDate })
+    })
+  })
+
+  return fromDays
 }
 
 function normalizeClientAvailability(raw) {
-  const normalizeSlotStatus = (slot) => {
-    const status = String(slot?.status ?? "").toLowerCase()
-    if (status === "available") return "available"
-    if (status === "occupied") return "occupied"
+  const candidates = collectSlotCandidates(raw)
 
-    if (typeof slot?.occupied === "boolean") return slot.occupied ? "occupied" : "available"
-    if (typeof slot?.is_occupied === "boolean") return slot.is_occupied ? "occupied" : "available"
-    if (typeof slot?.available === "boolean") return slot.available ? "available" : "occupied"
-    if (typeof slot?.is_available === "boolean") return slot.is_available ? "available" : "occupied"
-
-    return null
-  }
-
-  const sourceSlots = getList(raw?.slots).length ? getList(raw?.slots) : getList(raw)
-  return sourceSlots
+  return candidates
     .map((slot, idx) => {
-      const startAtRaw = slot?.start_at ?? slot?.starts_at ?? slot?.start
-      const endAtRaw = slot?.end_at ?? slot?.ends_at ?? slot?.end
-      const startAt = parseDate(startAtRaw)
+      const rawStart = slot?.start_at ?? slot?.starts_at ?? slot?.start ?? slot?.datetime ?? slot?.date_time
+      const rawEnd = slot?.end_at ?? slot?.ends_at ?? slot?.end
+
+      let startAt = parseDate(rawStart)
+      if (!startAt && slot?._dayDate && rawStart && typeof rawStart === "string") {
+        startAt = parseDate(`${slot._dayDate}T${rawStart}`)
+      }
       if (!startAt) return null
+
+      let endAt = parseDate(rawEnd)
+      if (!endAt && slot?._dayDate && rawEnd && typeof rawEnd === "string") {
+        endAt = parseDate(`${slot._dayDate}T${rawEnd}`)
+      }
+      if (!endAt) endAt = new Date(startAt.getTime() + 60 * 60 * 1000)
 
       const status = normalizeSlotStatus(slot)
       if (!status) return null
 
-      const endAt = parseDate(endAtRaw) || new Date(startAt.getTime() + 60 * 60 * 1000)
       return {
         id: String(slot?.id ?? `${startAt.toISOString()}-${idx}`),
         startAt,
@@ -192,6 +224,20 @@ function normalizeClientAvailability(raw) {
       }
     })
     .filter(Boolean)
+}
+
+function buildBusinessWeekDays(weekStart) {
+  // Important: build weekdays from real Date objects only.
+  // Never parse UI labels (e.g. "mié 22/04"), which can produce wrong years.
+  const safeWeekStart = startOfWeek(parseDate(weekStart) ?? new Date(), { weekStartsOn: 1 })
+  return [0, 1, 2, 3, 4].map((offset) => {
+    const date = addDays(safeWeekStart, offset)
+    return { key: toDateKey(date), date }
+  })
+}
+
+function toWeekStart(dateLike) {
+  return startOfWeek(parseDate(dateLike) ?? new Date(), { weekStartsOn: 1 })
 }
 
 export default function CalendarPage() {
@@ -216,7 +262,7 @@ export default function CalendarPage() {
 
   const [clientServices, setClientServices] = useState([])
   const [selectedClientServiceId, setSelectedClientServiceId] = useState("")
-  const [rangeMode, setRangeMode] = useState("week")
+  const [selectedWeekStart, setSelectedWeekStart] = useState(() => toWeekStart(new Date()))
   const [availabilityLoading, setAvailabilityLoading] = useState(false)
   const [availabilityRefreshing, setAvailabilityRefreshing] = useState(false)
   const [availabilityError, setAvailabilityError] = useState("")
@@ -238,6 +284,11 @@ export default function CalendarPage() {
   }, [selectedService])
 
   const selectedServiceName = selectedService?.name ?? "Servicio"
+  const weekEnd = useMemo(() => addDays(selectedWeekStart, 4), [selectedWeekStart])
+  const weekLabel = useMemo(
+    () => `Semana del ${format(selectedWeekStart, "dd/MM")} al ${format(weekEnd, "dd/MM")}`,
+    [selectedWeekStart, weekEnd]
+  )
   const availabilityByKey = useMemo(() => {
     const map = new Map()
     availabilitySlots.forEach((slot) => {
@@ -245,47 +296,9 @@ export default function CalendarPage() {
     })
     return map
   }, [availabilitySlots])
-  const weekdayColumns = useMemo(() => {
-    const maxDays = rangeMode === "14days" ? 10 : 5
-    const baseDays = buildBusinessDaysFromToday(maxDays)
-    const dayMap = new Map()
-    const today = new Date()
-    today.setHours(0, 0, 0, 0)
 
-    availabilitySlots.forEach((slot) => {
-      const dayNum = slot.startAt.getDay()
-      if (dayNum < 1 || dayNum > 5) return
-      if (slot.startAt < today) return
-      if (!dayMap.has(slot.dateKey)) {
-        const baseDate = parseISO(`${slot.dateKey}T00:00:00`)
-        if (!isValid(baseDate)) return
-        dayMap.set(slot.dateKey, { key: slot.dateKey, date: baseDate })
-      }
-    })
-
-    const sortedFromSlots = [...dayMap.values()]
-      .sort((a, b) => a.date.getTime() - b.date.getTime())
-      .slice(0, maxDays)
-    if (sortedFromSlots.length === maxDays) return sortedFromSlots
-
-    const merged = new Map(sortedFromSlots.map((day) => [day.key, day]))
-    baseDays.forEach((day) => {
-      if (!merged.has(day.key) && merged.size < maxDays) {
-        merged.set(day.key, day)
-      }
-    })
-
-    return [...merged.values()].sort((a, b) => a.date.getTime() - b.date.getTime())
-  }, [availabilitySlots, rangeMode])
+  const weekdayColumns = useMemo(() => buildBusinessWeekDays(selectedWeekStart), [selectedWeekStart])
   const timeRows = useMemo(() => buildTimeRows(selectedServiceDuration), [selectedServiceDuration])
-
-  useEffect(() => {
-    if (!import.meta.env.DEV || isAdmin) return
-    console.debug(
-      "[calendar-client] generated weekdays",
-      weekdayColumns.map((day) => day.date.toISOString())
-    )
-  }, [weekdayColumns, isAdmin])
 
   async function loadAppointments({ manual = false } = {}) {
     setError("")
@@ -296,7 +309,7 @@ export default function CalendarPage() {
       const data = await apiListAppointments(token)
       setEvents(mapAppointmentsToEvents(getList(data)))
     } catch (err) {
-      setError(err?.message || "No se pudieron cargar los turnos del calendario.")
+      setError(normalizeErrorMessage(err, "No se pudieron cargar los turnos del calendario."))
     } finally {
       setLoading(false)
       setRefreshing(false)
@@ -310,7 +323,7 @@ export default function CalendarPage() {
       setClients(getList(clientsData))
       setServices(getList(servicesData))
     } catch (err) {
-      setError(err?.message || "No se pudieron cargar clientes y servicios.")
+      setError(normalizeErrorMessage(err, "No se pudieron cargar clientes y servicios."))
     } finally {
       setLoadingOptions(false)
     }
@@ -337,7 +350,7 @@ export default function CalendarPage() {
         }
       }
     } catch (err) {
-      setAvailabilityError(err?.message || "No se pudieron cargar los servicios.")
+      setAvailabilityError(normalizeErrorMessage(err, "No se pudieron cargar los servicios."))
     } finally {
       setAvailabilityLoading(false)
     }
@@ -355,16 +368,11 @@ export default function CalendarPage() {
     else setAvailabilityLoading(true)
 
     try {
-      const data = await apiClientAvailability(token, Number(selectedClientServiceId), rangeMode)
-      const normalized = normalizeClientAvailability(data)
-      if (import.meta.env.DEV) {
-        const preview = normalized.slice(0, 3).map((slot) => ({
-          start_at: slot.startAt.toISOString(),
-          end_at: slot.endAt.toISOString(),
-          status: slot.status,
-        }))
-        console.debug("[client availability] slots preview", preview)
-      }
+      const data = await apiClientAvailability(token, Number(selectedClientServiceId), {
+        range: "week",
+        start_date: toApiDate(selectedWeekStart),
+      })
+      const normalized = normalizeClientAvailability(data).sort((a, b) => a.startAt.getTime() - b.startAt.getTime())
       setAvailabilitySlots(normalized)
       setSelectedSlot((prev) => {
         if (!prev) return null
@@ -380,7 +388,7 @@ export default function CalendarPage() {
           : null
       })
     } catch (err) {
-      setAvailabilityError(err?.message || "No se pudo cargar la disponibilidad.")
+      setAvailabilityError(normalizeErrorMessage(err, "No se pudo cargar disponibilidad. Reintentá."))
       setAvailabilitySlots([])
       setSelectedSlot(null)
     } finally {
@@ -410,7 +418,7 @@ export default function CalendarPage() {
       await loadAppointments({ manual: true })
       window.setTimeout(() => setSuccess(""), 3500)
     } catch (err) {
-      setError(err?.message || "No se pudo crear el turno.")
+      setError(normalizeErrorMessage(err, "No se pudo crear el turno."))
     } finally {
       setCreating(false)
     }
@@ -435,7 +443,7 @@ export default function CalendarPage() {
       setSelectedSlot(null)
       window.setTimeout(() => navigate("/my-appointments"), 800)
     } catch (err) {
-      setAvailabilityError(err?.message || "No se pudo confirmar el turno.")
+      setAvailabilityError(normalizeErrorMessage(err, "No se pudo confirmar el turno."))
     } finally {
       setClientCreating(false)
     }
@@ -457,7 +465,12 @@ export default function CalendarPage() {
 
     localStorage.setItem(CLIENT_SELECTED_SERVICE_KEY, String(selectedClientServiceId))
     loadClientAvailability()
-  }, [isAdmin, selectedClientServiceId, rangeMode])
+  }, [isAdmin, selectedClientServiceId, selectedWeekStart])
+
+  useEffect(() => {
+    if (!import.meta.env.DEV || isAdmin) return
+    console.debug("[calendar-client] days generated", weekdayColumns.map((day) => day.date.toISOString()))
+  }, [isAdmin, weekdayColumns])
 
   if (!isAdmin) {
     return (
@@ -475,7 +488,7 @@ export default function CalendarPage() {
         </div>
 
         <section className="rounded-2xl border border-neutral-800 bg-neutral-900/40 p-5">
-          <div className="grid gap-3 md:grid-cols-[280px_180px_1fr] md:items-end">
+          <div className="grid gap-3 md:grid-cols-[280px_1fr] md:items-end">
             <div>
               <label className="text-sm text-neutral-300">Servicio</label>
               <select
@@ -493,26 +506,42 @@ export default function CalendarPage() {
               </select>
             </div>
 
-            <div>
-              <label className="text-sm text-neutral-300">Rango</label>
-              <select
-                value={rangeMode}
-                onChange={(e) => setRangeMode(e.target.value)}
-                className="mt-1 w-full rounded-xl border border-neutral-800 bg-neutral-950 px-3 py-2 outline-none"
-              >
-                <option value="week">Semana</option>
-                <option value="14days">14 días</option>
-              </select>
+            <div className="flex flex-wrap items-center justify-between gap-2">
+              <label className="text-sm text-neutral-300">Semana</label>
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => setSelectedWeekStart((prev) => toWeekStart(addDays(prev, -7)))}
+                  className="rounded-md bg-neutral-800/60 px-3 py-1 text-sm hover:bg-neutral-800"
+                >
+                  ◀
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setSelectedWeekStart(toWeekStart(new Date()))}
+                  className="rounded-md bg-neutral-800/60 px-3 py-1 text-sm hover:bg-neutral-800"
+                >
+                  Hoy
+                </button>
+                <div className="min-w-48 text-center text-sm text-neutral-200">{weekLabel}</div>
+                <button
+                  type="button"
+                  onClick={() => setSelectedWeekStart((prev) => toWeekStart(addDays(prev, 7)))}
+                  className="rounded-md bg-neutral-800/60 px-3 py-1 text-sm hover:bg-neutral-800"
+                >
+                  ▶
+                </button>
+              </div>
             </div>
+          </div>
 
-            <div className="flex flex-wrap items-center gap-4 text-sm">
-              <span className="inline-flex items-center gap-2 text-neutral-300">
-                <span className="h-2.5 w-2.5 rounded-full bg-emerald-300" /> Disponible
-              </span>
-              <span className="inline-flex items-center gap-2 text-neutral-400">
-                <span className="h-2.5 w-2.5 rounded-full bg-red-400/70" /> Ocupado
-              </span>
-            </div>
+          <div className="mt-4 flex flex-wrap items-center gap-4 text-sm">
+            <span className="inline-flex items-center gap-2 text-neutral-300">
+              <span className="h-2.5 w-2.5 rounded-full bg-emerald-300" /> Disponible
+            </span>
+            <span className="inline-flex items-center gap-2 text-neutral-400">
+              <span className="h-2.5 w-2.5 rounded-full bg-red-400/70" /> Ocupado
+            </span>
           </div>
 
           {clientSuccess ? <p className="mt-4 text-sm text-emerald-400">{clientSuccess}</p> : null}
@@ -521,12 +550,12 @@ export default function CalendarPage() {
 
           {!availabilityLoading && selectedClientServiceId && weekdayColumns.length > 0 ? (
             <div className="mt-4 overflow-x-auto">
-              <table className="min-w-[760px] w-full text-xs">
+              <table className="w-full min-w-[980px] text-xs">
                 <thead className="text-neutral-400">
                   <tr>
                     <th className="w-20 px-2 pb-2 text-left">Hora</th>
                     {weekdayColumns.map((day) => (
-                      <th key={day.key} className="min-w-28 px-1 pb-2 text-center font-medium">
+                      <th key={day.key} className="min-w-24 px-1 pb-2 text-center font-medium">
                         {format(day.date, "EEE dd/MM", { locale: es })}
                       </th>
                     ))}
@@ -539,13 +568,10 @@ export default function CalendarPage() {
                       {weekdayColumns.map((day) => {
                         const key = `${day.key} ${timeKey}`
                         const slot = availabilityByKey.get(key) || null
-                        const slotStatus = slot?.status ?? "none"
-                        const available = slotStatus === "available"
-                        const occupied = slotStatus === "occupied"
+                        const available = slot?.status === "available"
+                        const occupied = slot?.status === "occupied"
                         const selected =
-                          available &&
-                          selectedSlot?.startAt &&
-                          slot?.startAt.toISOString() === selectedSlot.startAt
+                          available && selectedSlot?.startAt && slot?.startAt.toISOString() === selectedSlot.startAt
 
                         return (
                           <td key={key} className="px-1 py-1">
@@ -580,10 +606,15 @@ export default function CalendarPage() {
             </div>
           ) : null}
 
-          {!availabilityLoading && selectedClientServiceId && weekdayColumns.length > 0 && timeRows.length === 0 ? (
+          {!availabilityLoading && selectedClientServiceId && weekdayColumns.length === 0 ? (
+            <p className="mt-4 text-neutral-400">No hay días hábiles para mostrar en este mes.</p>
+          ) : null}
+
+          {!availabilityLoading && selectedClientServiceId && timeRows.length === 0 ? (
             <p className="mt-4 text-neutral-400">El servicio no tiene una duración válida para generar bloques.</p>
           ) : null}
         </section>
+
         <section className="rounded-2xl border border-neutral-800 bg-neutral-900/40 p-5">
           <div className="flex flex-wrap items-center justify-between gap-3">
             <h2 className="text-lg font-medium">Slot seleccionado</h2>
