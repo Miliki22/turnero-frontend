@@ -238,11 +238,11 @@ export default function AppointmentsPage() {
       <h1 className="text-2xl font-semibold">Turnos</h1>
 
       {isAdmin ? (
-        <section ref={createSectionRef} className="rounded-2xl border border-neutral-800 bg-neutral-900/40 p-5">
+        <section ref={createSectionRef} className="kala-card rounded-2xl p-5">
           <h2 className="text-lg font-medium">Crear turno</h2>
           <form className="mt-4 grid gap-3 md:grid-cols-4" onSubmit={onCreate}>
             <select
-              className="rounded-xl border border-neutral-800 bg-neutral-950 px-3 py-2 outline-none"
+              className="kala-input rounded-xl px-3 py-2 outline-none"
               value={clientId}
               onChange={(e) => setClientId(e.target.value)}
               disabled={loadingOptions}
@@ -255,7 +255,7 @@ export default function AppointmentsPage() {
               ))}
             </select>
             <select
-              className="rounded-xl border border-neutral-800 bg-neutral-950 px-3 py-2 outline-none"
+              className="kala-input rounded-xl px-3 py-2 outline-none"
               value={serviceId}
               onChange={(e) => setServiceId(e.target.value)}
               disabled={loadingOptions}
@@ -270,14 +270,14 @@ export default function AppointmentsPage() {
             <input
               ref={startAtInputRef}
               type="datetime-local"
-              className="rounded-xl border border-neutral-800 bg-neutral-950 px-3 py-2 outline-none"
+              className="kala-input rounded-xl px-3 py-2 outline-none"
               value={startAt}
               onChange={(e) => setStartAt(e.target.value)}
             />
             <button
               type="submit"
               disabled={!canSubmit || submitting || loadingOptions}
-              className="rounded-xl bg-neutral-100 px-4 py-2 font-medium text-neutral-950 disabled:opacity-60"
+              className="kala-btn-primary rounded-xl px-4 py-2 font-medium"
             >
               {submitting ? "Creando..." : "Crear"}
             </button>
@@ -285,27 +285,27 @@ export default function AppointmentsPage() {
         </section>
       ) : null}
 
-      <section className="rounded-2xl border border-neutral-800 bg-neutral-900/40 p-5">
+      <section className="kala-card rounded-2xl p-5">
         <div className="flex items-center justify-between">
           <h2 className="text-lg font-medium">Listado</h2>
           <button
             type="button"
             onClick={() => loadAppointments({ manual: true })}
             disabled={loading || refreshing}
-            className="rounded-md bg-neutral-800/60 px-3 py-1 text-sm hover:bg-neutral-800 disabled:opacity-60"
+            className="kala-btn rounded-md px-3 py-1 text-sm"
           >
             {refreshing ? "Actualizando..." : "Actualizar"}
           </button>
         </div>
 
         {error ? <p className="mt-3 text-sm text-red-400">{error}</p> : null}
-        {loading ? <p className="mt-3 text-neutral-400">Cargando...</p> : null}
-        {!loading && appointments.length === 0 ? <p className="mt-3 text-neutral-400">Sin turnos.</p> : null}
+        {loading ? <p className="kala-muted mt-3">Cargando...</p> : null}
+        {!loading && appointments.length === 0 ? <p className="kala-muted mt-3">Sin turnos.</p> : null}
 
         {!loading && appointments.length > 0 ? (
           <div className="mt-4 overflow-x-auto">
             <table className="w-full text-left text-sm">
-              <thead className="text-neutral-400">
+              <thead className="kala-muted">
                 <tr>
                   <th className="w-20 min-w-20 px-2 pb-2 text-center">ID</th>
                   <th className="px-3 pb-2">Cliente</th>
@@ -325,12 +325,12 @@ export default function AppointmentsPage() {
                   const timeText = startDate ? TIME_FORMATTER.format(startDate) : "-"
 
                   return (
-                    <tr key={appointment.id ?? idx} className="border-t border-neutral-800 align-top">
+                    <tr key={appointment.id ?? idx} className="align-top" style={{ borderTop: "1px solid var(--border)" }}>
                       <td className="w-20 min-w-20 px-2 py-3 text-center">{appointment.id ?? "-"}</td>
                       <td className="px-3 py-3">
                         {isEditing ? (
                           <select
-                            className="w-full rounded-md border border-neutral-700 bg-neutral-950 px-2 py-1"
+                            className="kala-input w-full rounded-md px-2 py-1"
                             value={editValues.clientId}
                             onChange={(e) => setEditValues((prev) => ({ ...prev, clientId: e.target.value }))}
                           >
@@ -348,7 +348,7 @@ export default function AppointmentsPage() {
                       <td className="px-3 py-3">
                         {isEditing ? (
                           <select
-                            className="w-full rounded-md border border-neutral-700 bg-neutral-950 px-2 py-1"
+                            className="kala-input w-full rounded-md px-2 py-1"
                             value={editValues.serviceId}
                             onChange={(e) => setEditValues((prev) => ({ ...prev, serviceId: e.target.value }))}
                           >
@@ -367,7 +367,7 @@ export default function AppointmentsPage() {
                         {isEditing ? (
                           <input
                             type="datetime-local"
-                            className="w-full rounded-md border border-neutral-700 bg-neutral-950 px-2 py-1"
+                            className="kala-input w-full rounded-md px-2 py-1"
                             value={editValues.startAt}
                             onChange={(e) => setEditValues((prev) => ({ ...prev, startAt: e.target.value }))}
                           />
@@ -385,7 +385,7 @@ export default function AppointmentsPage() {
                                   type="button"
                                   onClick={() => onSaveEdit(appointment.id)}
                                   disabled={rowSaving || rowDeleting}
-                                  className="rounded-md bg-neutral-100 px-3 py-1 text-xs font-medium text-neutral-950 disabled:opacity-60"
+                                  className="kala-btn-primary rounded-md px-3 py-1 text-xs font-medium"
                                 >
                                   {rowSaving ? "Guardando..." : "Guardar"}
                                 </button>
@@ -393,7 +393,7 @@ export default function AppointmentsPage() {
                                   type="button"
                                   onClick={onCancelEdit}
                                   disabled={rowSaving || rowDeleting}
-                                  className="rounded-md bg-neutral-800 px-3 py-1 text-xs hover:bg-neutral-700 disabled:opacity-60"
+                                  className="kala-btn rounded-md px-3 py-1 text-xs"
                                 >
                                   Cancelar
                                 </button>
@@ -403,7 +403,7 @@ export default function AppointmentsPage() {
                                 type="button"
                                 onClick={() => onStartEdit(appointment)}
                                 disabled={rowSaving || rowDeleting}
-                                className="rounded-md bg-neutral-800 px-3 py-1 text-xs hover:bg-neutral-700 disabled:opacity-60"
+                                className="kala-btn rounded-md px-3 py-1 text-xs"
                               >
                                 Editar
                               </button>
@@ -412,7 +412,7 @@ export default function AppointmentsPage() {
                               type="button"
                               onClick={() => onDelete(appointment.id)}
                               disabled={rowSaving || rowDeleting || !appointment.id}
-                              className="rounded-md bg-red-500/20 px-3 py-1 text-xs font-medium text-red-300 hover:bg-red-500/30 disabled:opacity-60"
+                              className="kala-btn-danger rounded-md px-3 py-1 text-xs font-medium"
                             >
                               {rowDeleting ? "Eliminando..." : "Eliminar"}
                             </button>
@@ -420,7 +420,7 @@ export default function AppointmentsPage() {
                               type="button"
                               onClick={() => onDuplicate(appointment)}
                               disabled={rowSaving || rowDeleting}
-                              className="rounded-md bg-neutral-800 px-3 py-1 text-xs hover:bg-neutral-700 disabled:opacity-60"
+                              className="kala-btn rounded-md px-3 py-1 text-xs"
                             >
                               Duplicar
                             </button>

@@ -110,14 +110,14 @@ export default function IntegrationsPage() {
         </div>
       ) : null}
 
-      <section className="rounded-2xl border border-neutral-800 bg-neutral-900/40 p-5">
+      <section className="kala-card rounded-2xl p-5">
         <div className="flex items-center justify-between gap-3">
           <h2 className="text-lg font-medium">Google Calendar</h2>
           <button
             type="button"
             onClick={() => loadStatus({ manual: true })}
             disabled={loading || refreshing || connecting || disconnecting}
-            className="rounded-md bg-neutral-800/60 px-3 py-1 text-sm hover:bg-neutral-800 disabled:opacity-60"
+            className="kala-btn rounded-md px-3 py-1 text-sm"
           >
             {refreshing ? "Actualizando..." : "Actualizar"}
           </button>
@@ -126,12 +126,12 @@ export default function IntegrationsPage() {
         {error ? <p className="mt-3 text-sm text-red-400">{error}</p> : null}
 
         {loading ? (
-          <p className="mt-4 text-neutral-400">Cargando estado...</p>
+          <p className="kala-muted mt-4">Cargando estado...</p>
         ) : (
           <>
-            <div className="mt-4 rounded-xl border border-neutral-800 bg-neutral-950 px-4 py-3">
-              <p className="text-sm text-neutral-300">Estado Google Calendar</p>
-              <p className={`mt-1 font-medium ${connected ? "text-emerald-300" : "text-neutral-200"}`}>
+            <div className="kala-card-soft mt-4 rounded-xl px-4 py-3">
+              <p className="kala-muted text-sm">Estado Google Calendar</p>
+              <p className={`mt-1 font-medium ${connected ? "text-emerald-600 dark:text-emerald-300" : "kala-muted"}`}>
                 {connected ? "Conectado" : "No conectado"}
               </p>
             </div>
@@ -141,7 +141,7 @@ export default function IntegrationsPage() {
                 type="button"
                 onClick={onConnect}
                 disabled={connecting || disconnecting}
-                className="rounded-xl bg-neutral-100 px-4 py-2 text-sm font-medium text-neutral-950 disabled:opacity-60"
+                className="kala-btn-primary rounded-xl px-4 py-2 text-sm font-medium"
               >
                 {connecting ? "Redirigiendo..." : "Conectar Google Calendar"}
               </button>
@@ -150,7 +150,7 @@ export default function IntegrationsPage() {
                 type="button"
                 onClick={onDisconnect}
                 disabled={!connected || disconnecting || connecting}
-                className="rounded-xl border border-neutral-700 bg-neutral-900 px-4 py-2 text-sm font-medium text-neutral-200 disabled:opacity-50"
+                className="kala-btn-danger rounded-xl px-4 py-2 text-sm font-medium disabled:opacity-50"
               >
                 {disconnecting ? "Desconectando..." : "Desconectar"}
               </button>

@@ -481,20 +481,20 @@ export default function CalendarPage() {
             type="button"
             onClick={() => loadClientAvailability({ manual: true })}
             disabled={availabilityLoading || availabilityRefreshing || !selectedClientServiceId}
-            className="rounded-md bg-neutral-800/60 px-3 py-1 text-sm hover:bg-neutral-800 disabled:opacity-60"
+            className="kala-btn rounded-md px-3 py-1 text-sm"
           >
             {availabilityRefreshing ? "Actualizando..." : "Actualizar"}
           </button>
         </div>
 
-        <section className="rounded-2xl border border-neutral-800 bg-neutral-900/40 p-5">
+        <section className="kala-card rounded-2xl p-5">
           <div className="grid gap-3 md:grid-cols-[280px_1fr] md:items-end">
             <div>
-              <label className="text-sm text-neutral-300">Servicio</label>
+              <label className="kala-muted text-sm">Servicio</label>
               <select
                 value={selectedClientServiceId}
                 onChange={(e) => setSelectedClientServiceId(e.target.value)}
-                className="mt-1 w-full rounded-xl border border-neutral-800 bg-neutral-950 px-3 py-2 outline-none"
+                className="kala-input mt-1 w-full rounded-xl px-3 py-2 outline-none"
                 disabled={availabilityLoading && clientServices.length === 0}
               >
                 <option value="">Seleccioná un servicio</option>
@@ -507,27 +507,27 @@ export default function CalendarPage() {
             </div>
 
             <div className="flex flex-wrap items-center justify-between gap-2">
-              <label className="text-sm text-neutral-300">Semana</label>
+              <label className="kala-muted text-sm">Semana</label>
               <div className="flex items-center gap-2">
                 <button
                   type="button"
                   onClick={() => setSelectedWeekStart((prev) => toWeekStart(addDays(prev, -7)))}
-                  className="rounded-md bg-neutral-800/60 px-3 py-1 text-sm hover:bg-neutral-800"
+                  className="kala-btn rounded-md px-3 py-1 text-sm"
                 >
                   ◀
                 </button>
                 <button
                   type="button"
                   onClick={() => setSelectedWeekStart(toWeekStart(new Date()))}
-                  className="rounded-md bg-neutral-800/60 px-3 py-1 text-sm hover:bg-neutral-800"
+                  className="kala-btn rounded-md px-3 py-1 text-sm"
                 >
                   Hoy
                 </button>
-                <div className="min-w-48 text-center text-sm text-neutral-200">{weekLabel}</div>
+                <div className="kala-muted min-w-48 text-center text-sm">{weekLabel}</div>
                 <button
                   type="button"
                   onClick={() => setSelectedWeekStart((prev) => toWeekStart(addDays(prev, 7)))}
-                  className="rounded-md bg-neutral-800/60 px-3 py-1 text-sm hover:bg-neutral-800"
+                  className="kala-btn rounded-md px-3 py-1 text-sm"
                 >
                   ▶
                 </button>
@@ -536,22 +536,22 @@ export default function CalendarPage() {
           </div>
 
           <div className="mt-4 flex flex-wrap items-center gap-4 text-sm">
-            <span className="inline-flex items-center gap-2 text-neutral-300">
-              <span className="h-2.5 w-2.5 rounded-full bg-emerald-300" /> Disponible
+            <span className="kala-muted inline-flex items-center gap-2">
+              <span className="h-2.5 w-2.5 rounded-full" style={{ background: "var(--slot-available-bg)" }} /> Disponible
             </span>
-            <span className="inline-flex items-center gap-2 text-neutral-400">
-              <span className="h-2.5 w-2.5 rounded-full bg-red-400/70" /> Ocupado
+            <span className="kala-muted inline-flex items-center gap-2">
+              <span className="h-2.5 w-2.5 rounded-full" style={{ background: "var(--slot-occupied-bg)" }} /> Ocupado
             </span>
           </div>
 
           {clientSuccess ? <p className="mt-4 text-sm text-emerald-400">{clientSuccess}</p> : null}
           {availabilityError ? <p className="mt-4 text-sm text-red-400">{availabilityError}</p> : null}
-          {availabilityLoading ? <p className="mt-4 text-neutral-400">Cargando disponibilidad...</p> : null}
+          {availabilityLoading ? <p className="kala-muted mt-4">Cargando disponibilidad...</p> : null}
 
           {!availabilityLoading && selectedClientServiceId && weekdayColumns.length > 0 ? (
             <div className="mt-4 overflow-x-auto">
               <table className="w-full min-w-[980px] text-xs">
-                <thead className="text-neutral-400">
+                <thead className="kala-muted">
                   <tr>
                     <th className="w-20 px-2 pb-2 text-left">Hora</th>
                     {weekdayColumns.map((day) => (
@@ -563,8 +563,8 @@ export default function CalendarPage() {
                 </thead>
                 <tbody>
                   {timeRows.map((timeKey) => (
-                    <tr key={timeKey} className="border-t border-neutral-800/80 align-middle">
-                      <td className="px-2 py-2 text-neutral-400">{timeKey}</td>
+                    <tr key={timeKey} className="align-middle" style={{ borderTop: "1px solid var(--border)" }}>
+                      <td className="kala-muted px-2 py-2">{timeKey}</td>
                       {weekdayColumns.map((day) => {
                         const key = `${day.key} ${timeKey}`
                         const slot = availabilityByKey.get(key) || null
@@ -586,12 +586,12 @@ export default function CalendarPage() {
                                 })
                               }}
                               disabled={!available}
-                              className={`w-full rounded-md border px-2 py-2 text-[11px] transition ${
+                              className={`kala-slot ${
                                 available
-                                  ? `${selected ? "ring-1 ring-emerald-200 " : ""}border-emerald-400/40 bg-emerald-500/20 text-emerald-200 hover:bg-emerald-500/30`
+                                  ? `kala-slot-available ${selected ? "kala-slot-selected" : ""}`
                                   : occupied
-                                    ? "cursor-not-allowed border-red-400/20 bg-red-500/12 text-neutral-500"
-                                    : "cursor-not-allowed border-neutral-700/60 bg-white/5 text-neutral-500"
+                                    ? "kala-slot-occupied"
+                                    : "kala-slot-empty"
                               }`}
                             >
                               {available ? "Disponible" : occupied ? "Ocupado" : "—"}
@@ -607,29 +607,29 @@ export default function CalendarPage() {
           ) : null}
 
           {!availabilityLoading && selectedClientServiceId && weekdayColumns.length === 0 ? (
-            <p className="mt-4 text-neutral-400">No hay días hábiles para mostrar en este mes.</p>
+            <p className="kala-muted mt-4">No hay días hábiles para mostrar en este mes.</p>
           ) : null}
 
           {!availabilityLoading && selectedClientServiceId && timeRows.length === 0 ? (
-            <p className="mt-4 text-neutral-400">El servicio no tiene una duración válida para generar bloques.</p>
+            <p className="kala-muted mt-4">El servicio no tiene una duración válida para generar bloques.</p>
           ) : null}
         </section>
 
-        <section className="rounded-2xl border border-neutral-800 bg-neutral-900/40 p-5">
+        <section className="kala-card rounded-2xl p-5">
           <div className="flex flex-wrap items-center justify-between gap-3">
             <h2 className="text-lg font-medium">Slot seleccionado</h2>
             <button
               type="button"
               onClick={onConfirmClientSlot}
               disabled={clientCreating || !selectedSlot}
-              className="rounded-xl bg-neutral-100 px-4 py-2 text-sm font-medium text-neutral-950 disabled:opacity-60"
+              className="kala-btn-primary rounded-xl px-4 py-2 text-sm font-medium"
             >
               {clientCreating ? "Confirmando..." : "Confirmar turno"}
             </button>
           </div>
 
           {selectedSlot ? (
-            <div className="mt-3 space-y-1 text-sm text-neutral-300">
+            <div className="mt-3 space-y-1 text-sm">
               <p>
                 <strong>Servicio:</strong> {selectedServiceName}
               </p>
@@ -649,7 +649,7 @@ export default function CalendarPage() {
               ) : null}
             </div>
           ) : (
-            <p className="mt-3 text-sm text-neutral-400">Seleccioná un slot disponible para continuar.</p>
+            <p className="kala-muted mt-3 text-sm">Seleccioná un slot disponible para continuar.</p>
           )}
 
           <div className="mt-4 flex justify-end gap-2">
@@ -657,7 +657,7 @@ export default function CalendarPage() {
               type="button"
               onClick={() => setSelectedSlot(null)}
               disabled={clientCreating || !selectedSlot}
-              className="rounded-xl border border-neutral-700 bg-neutral-900 px-4 py-2 text-sm text-neutral-200 disabled:opacity-60"
+              className="kala-btn rounded-xl px-4 py-2 text-sm"
             >
               Limpiar selección
             </button>
@@ -675,7 +675,7 @@ export default function CalendarPage() {
           type="button"
           onClick={() => loadAppointments({ manual: true })}
           disabled={loading || refreshing || creating}
-          className="rounded-md bg-neutral-800/60 px-3 py-1 text-sm hover:bg-neutral-800 disabled:opacity-60"
+          className="kala-btn rounded-md px-3 py-1 text-sm"
         >
           {refreshing ? "Actualizando..." : "Actualizar"}
         </button>
@@ -689,9 +689,9 @@ export default function CalendarPage() {
 
       {error ? <p className="text-sm text-red-400">{error}</p> : null}
 
-      <section className="rounded-2xl border border-neutral-800 bg-neutral-900/40 p-4 sm:p-5">
+      <section className="kala-card rounded-2xl p-4 sm:p-5">
         {loading ? (
-          <p className="text-neutral-400">Cargando calendario...</p>
+          <p className="kala-muted">Cargando calendario...</p>
         ) : (
           <div className="kala-calendar">
             <FullCalendar
@@ -723,23 +723,23 @@ export default function CalendarPage() {
         )}
 
         {!loading && events.length === 0 ? (
-          <p className="mt-4 text-sm text-neutral-400">No hay turnos para mostrar en este calendario.</p>
+          <p className="kala-muted mt-4 text-sm">No hay turnos para mostrar en este calendario.</p>
         ) : null}
       </section>
 
-      <section className="rounded-2xl border border-neutral-800 bg-neutral-900/40 p-5">
+      <section className="kala-card rounded-2xl p-5">
         <h2 className="text-lg font-medium">Crear turno desde calendario</h2>
 
         {selectedRange ? (
           <>
-            <p className="mt-2 text-sm text-neutral-300">{formatRange(selectedRange.start, selectedRange.end)}</p>
+            <p className="kala-muted mt-2 text-sm">{formatRange(selectedRange.start, selectedRange.end)}</p>
 
             <div className="mt-4 grid gap-3 md:grid-cols-3">
               <select
                 value={clientId}
                 onChange={(e) => setClientId(e.target.value)}
                 disabled={loadingOptions || creating}
-                className="rounded-xl border border-neutral-800 bg-neutral-950 px-3 py-2 outline-none"
+                className="kala-input rounded-xl px-3 py-2 outline-none"
               >
                 <option value="">Cliente</option>
                 {clients.map((client) => (
@@ -753,7 +753,7 @@ export default function CalendarPage() {
                 value={serviceId}
                 onChange={(e) => setServiceId(e.target.value)}
                 disabled={loadingOptions || creating}
-                className="rounded-xl border border-neutral-800 bg-neutral-950 px-3 py-2 outline-none"
+                className="kala-input rounded-xl px-3 py-2 outline-none"
               >
                 <option value="">Servicio</option>
                 {services.map((service) => (
@@ -768,7 +768,7 @@ export default function CalendarPage() {
                   type="button"
                   onClick={onCreateAdminAppointment}
                   disabled={!canCreate}
-                  className="rounded-xl bg-neutral-100 px-4 py-2 text-sm font-medium text-neutral-950 disabled:opacity-60"
+                  className="kala-btn-primary rounded-xl px-4 py-2 text-sm font-medium"
                 >
                   {creating ? "Creando..." : "Crear turno"}
                 </button>
@@ -780,7 +780,7 @@ export default function CalendarPage() {
                     setServiceId("")
                   }}
                   disabled={creating}
-                  className="rounded-xl border border-neutral-700 bg-neutral-900 px-4 py-2 text-sm text-neutral-200 disabled:opacity-60"
+                  className="kala-btn rounded-xl px-4 py-2 text-sm"
                 >
                   Cancelar
                 </button>
@@ -788,7 +788,7 @@ export default function CalendarPage() {
             </div>
           </>
         ) : (
-          <p className="mt-2 text-sm text-neutral-400">
+          <p className="kala-muted mt-2 text-sm">
             Seleccioná un rango en el calendario para precargar fecha y hora de un nuevo turno.
           </p>
         )}

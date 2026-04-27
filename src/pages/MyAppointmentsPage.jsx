@@ -157,17 +157,17 @@ export default function MyAppointmentsPage() {
   }, [])
 
   return (
-    <div className="mx-auto max-w-5xl space-y-6">
+      <div className="mx-auto max-w-5xl space-y-6">
       <h1 className="text-2xl font-semibold">Mis turnos</h1>
 
-      <section className="rounded-2xl border border-neutral-800 bg-neutral-900/40 p-5">
+      <section className="kala-card rounded-2xl p-5">
         <h2 className="text-lg font-medium">Próximo turno</h2>
 
-        {loading ? <p className="mt-3 text-neutral-400">Cargando...</p> : null}
-        {!loading && !upcomingAppointment ? <p className="mt-3 text-neutral-400">No tenés próximos turnos.</p> : null}
+        {loading ? <p className="kala-muted mt-3">Cargando...</p> : null}
+        {!loading && !upcomingAppointment ? <p className="kala-muted mt-3">No tenés próximos turnos.</p> : null}
 
         {!loading && upcomingAppointment ? (
-          <div className="mt-4 rounded-xl border border-neutral-800 bg-neutral-950/50 p-4 text-sm text-neutral-200">
+          <div className="kala-card-soft mt-4 rounded-xl p-4 text-sm">
             <p>
               <strong>Servicio:</strong> {getServiceName(upcomingAppointment, servicesById)}
             </p>
@@ -184,11 +184,11 @@ export default function MyAppointmentsPage() {
         ) : null}
       </section>
 
-      <section className="rounded-2xl border border-neutral-800 bg-neutral-900/40 p-5">
+      <section className="kala-card rounded-2xl p-5">
         <h2 className="text-lg font-medium">Próximos turnos</h2>
-        {loading ? <p className="mt-3 text-neutral-400">Cargando...</p> : null}
+        {loading ? <p className="kala-muted mt-3">Cargando...</p> : null}
         {!loading && nextUpcomingAppointments.length === 0 ? (
-          <p className="mt-3 text-neutral-400">No hay más turnos futuros.</p>
+          <p className="kala-muted mt-3">No hay más turnos futuros.</p>
         ) : null}
 
         {!loading && nextUpcomingAppointments.length > 0 ? (
@@ -196,7 +196,7 @@ export default function MyAppointmentsPage() {
             {nextUpcomingAppointments.map((appointment, idx) => (
               <article
                 key={appointment.id ?? `next-${idx}`}
-                className="rounded-xl border border-neutral-800 bg-neutral-950/50 p-3 text-sm text-neutral-200"
+                className="kala-card-soft rounded-xl p-3 text-sm"
               >
                 <p>
                   <strong>Servicio:</strong> {getServiceName(appointment, servicesById)}
@@ -216,29 +216,29 @@ export default function MyAppointmentsPage() {
         ) : null}
       </section>
 
-      <section className="rounded-2xl border border-neutral-800 bg-neutral-900/40 p-5">
+      <section className="kala-card rounded-2xl p-5">
         <div className="flex items-center justify-between">
           <h2 className="text-lg font-medium">Historial</h2>
           <button
             type="button"
             onClick={() => loadAppointments({ manual: true })}
             disabled={loading || refreshing}
-            className="rounded-md bg-neutral-800/60 px-3 py-1 text-sm hover:bg-neutral-800 disabled:opacity-60"
+            className="kala-btn rounded-md px-3 py-1 text-sm"
           >
             {refreshing ? "Actualizando..." : "Actualizar"}
           </button>
         </div>
 
         {error ? <p className="mt-3 text-sm text-red-400">{error}</p> : null}
-        {loading ? <p className="mt-3 text-neutral-400">Cargando...</p> : null}
+        {loading ? <p className="kala-muted mt-3">Cargando...</p> : null}
         {!loading && historyAppointments.length === 0 ? (
-          <p className="mt-3 text-neutral-400">No hay turnos históricos para mostrar.</p>
+          <p className="kala-muted mt-3">No hay turnos históricos para mostrar.</p>
         ) : null}
 
         {!loading && historyAppointments.length > 0 ? (
           <div className="mt-4 overflow-x-auto">
             <table className="w-full text-left text-sm">
-              <thead className="text-neutral-400">
+              <thead className="kala-muted">
                 <tr>
                   <th className="px-3 pb-2">ID</th>
                   <th className="px-3 pb-2">Servicio</th>
@@ -254,7 +254,7 @@ export default function MyAppointmentsPage() {
                   const timeText = startDate ? TIME_FORMATTER.format(startDate) : "-"
 
                   return (
-                    <tr key={appointment.id ?? idx} className="border-t border-neutral-800">
+                    <tr key={appointment.id ?? idx} style={{ borderTop: "1px solid var(--border)" }}>
                       <td className="px-3 py-3">{appointment.id ?? "-"}</td>
                       <td className="px-3 py-3">
                         {getServiceName(appointment, servicesById)}

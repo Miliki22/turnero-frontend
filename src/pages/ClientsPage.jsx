@@ -148,29 +148,29 @@ export default function ClientsPage() {
       <h1 className="text-2xl font-semibold">Clientes</h1>
 
       {isAdmin ? (
-        <section className="rounded-2xl border border-neutral-800 bg-neutral-900/40 p-5">
+        <section className="kala-card rounded-2xl p-5">
           <h2 className="text-lg font-medium">Crear cliente</h2>
           <form className="mt-4 grid gap-3 md:grid-cols-5" onSubmit={onCreate}>
             <input
-              className="rounded-xl border border-neutral-800 bg-neutral-950 px-3 py-2 outline-none"
+              className="kala-input rounded-xl px-3 py-2 outline-none"
               placeholder="Nombre completo"
               value={fullName}
               onChange={(e) => setFullName(e.target.value)}
             />
             <input
-              className="rounded-xl border border-neutral-800 bg-neutral-950 px-3 py-2 outline-none"
+              className="kala-input rounded-xl px-3 py-2 outline-none"
               placeholder="Teléfono"
               value={phone}
               onChange={(e) => setPhone(e.target.value)}
             />
             <input
-              className="rounded-xl border border-neutral-800 bg-neutral-950 px-3 py-2 outline-none"
+              className="kala-input rounded-xl px-3 py-2 outline-none"
               placeholder="Email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
             />
             <input
-              className="rounded-xl border border-neutral-800 bg-neutral-950 px-3 py-2 outline-none"
+              className="kala-input rounded-xl px-3 py-2 outline-none"
               placeholder="Notas"
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
@@ -178,7 +178,7 @@ export default function ClientsPage() {
             <button
               type="submit"
               disabled={!canSubmit || submitting}
-              className="rounded-xl bg-neutral-100 px-4 py-2 font-medium text-neutral-950 disabled:opacity-60"
+              className="kala-btn-primary rounded-xl px-4 py-2 font-medium"
             >
               {submitting ? "Creando..." : "Crear"}
             </button>
@@ -186,27 +186,27 @@ export default function ClientsPage() {
         </section>
       ) : null}
 
-      <section className="rounded-2xl border border-neutral-800 bg-neutral-900/40 p-5">
+      <section className="kala-card rounded-2xl p-5">
         <div className="flex items-center justify-between">
           <h2 className="text-lg font-medium">Listado</h2>
           <button
             type="button"
             onClick={() => loadClients({ manual: true })}
             disabled={loading || refreshing}
-            className="rounded-md bg-neutral-800/60 px-3 py-1 text-sm hover:bg-neutral-800 disabled:opacity-60"
+            className="kala-btn rounded-md px-3 py-1 text-sm"
           >
             {refreshing ? "Actualizando..." : "Actualizar"}
           </button>
         </div>
 
         {error ? <p className="mt-3 text-sm text-red-400">{error}</p> : null}
-        {loading ? <p className="mt-3 text-neutral-400">Cargando...</p> : null}
-        {!loading && clients.length === 0 ? <p className="mt-3 text-neutral-400">Sin clientes.</p> : null}
+        {loading ? <p className="kala-muted mt-3">Cargando...</p> : null}
+        {!loading && clients.length === 0 ? <p className="kala-muted mt-3">Sin clientes.</p> : null}
 
         {!loading && clients.length > 0 ? (
           <div className="mt-4 overflow-x-auto">
             <table className="w-full text-left text-sm">
-              <thead className="text-neutral-400">
+              <thead className="kala-muted">
                 <tr>
                   <th className="pb-2">ID</th>
                   <th className="pb-2">Nombre</th>
@@ -223,12 +223,12 @@ export default function ClientsPage() {
                   const isEditing = editingId === client.id
 
                   return (
-                    <tr key={client.id ?? idx} className="border-t border-neutral-800 align-top">
+                    <tr key={client.id ?? idx} className="align-top" style={{ borderTop: "1px solid var(--border)" }}>
                       <td className="py-3">{client.id ?? "-"}</td>
                       <td className="py-3">
                         {isEditing ? (
                           <input
-                            className="w-full rounded-md border border-neutral-700 bg-neutral-950 px-2 py-1"
+                            className="kala-input w-full rounded-md px-2 py-1"
                             value={editValues.fullName}
                             onChange={(e) => setEditValues((prev) => ({ ...prev, fullName: e.target.value }))}
                           />
@@ -237,7 +237,7 @@ export default function ClientsPage() {
                             type="button"
                             onClick={() => navigate(`/clients/${client.id}`)}
                             disabled={!client.id}
-                            className="text-left text-neutral-100 underline decoration-neutral-600 underline-offset-2 hover:text-white disabled:no-underline disabled:opacity-50"
+                            className="text-left underline underline-offset-2 hover:opacity-80 disabled:no-underline disabled:opacity-50"
                           >
                             {client.full_name ?? client.name ?? "-"}
                           </button>
@@ -246,7 +246,7 @@ export default function ClientsPage() {
                       <td className="py-3">
                         {isEditing ? (
                           <input
-                            className="w-full rounded-md border border-neutral-700 bg-neutral-950 px-2 py-1"
+                            className="kala-input w-full rounded-md px-2 py-1"
                             value={editValues.email}
                             onChange={(e) => setEditValues((prev) => ({ ...prev, email: e.target.value }))}
                           />
@@ -257,7 +257,7 @@ export default function ClientsPage() {
                       <td className="py-3">
                         {isEditing ? (
                           <input
-                            className="w-full rounded-md border border-neutral-700 bg-neutral-950 px-2 py-1"
+                            className="kala-input w-full rounded-md px-2 py-1"
                             value={editValues.phone}
                             onChange={(e) => setEditValues((prev) => ({ ...prev, phone: e.target.value }))}
                           />
@@ -268,7 +268,7 @@ export default function ClientsPage() {
                       <td className="py-3">
                         {isEditing ? (
                           <input
-                            className="w-full rounded-md border border-neutral-700 bg-neutral-950 px-2 py-1"
+                            className="kala-input w-full rounded-md px-2 py-1"
                             value={editValues.notes}
                             onChange={(e) => setEditValues((prev) => ({ ...prev, notes: e.target.value }))}
                           />
@@ -283,7 +283,7 @@ export default function ClientsPage() {
                               type="button"
                               onClick={() => navigate(`/clients/${client.id}`)}
                               disabled={rowSaving || rowDeleting || !client.id}
-                              className="rounded-md bg-neutral-800 px-3 py-1 text-xs hover:bg-neutral-700 disabled:opacity-60"
+                              className="kala-btn rounded-md px-3 py-1 text-xs"
                             >
                               Ver
                             </button>
@@ -293,7 +293,7 @@ export default function ClientsPage() {
                                   type="button"
                                   onClick={() => onSaveEdit(client.id)}
                                   disabled={rowSaving || rowDeleting}
-                                  className="rounded-md bg-neutral-100 px-3 py-1 text-xs font-medium text-neutral-950 disabled:opacity-60"
+                                  className="kala-btn-primary rounded-md px-3 py-1 text-xs font-medium"
                                 >
                                   {rowSaving ? "Guardando..." : "Guardar"}
                                 </button>
@@ -301,7 +301,7 @@ export default function ClientsPage() {
                                   type="button"
                                   onClick={onCancelEdit}
                                   disabled={rowSaving || rowDeleting}
-                                  className="rounded-md bg-neutral-800 px-3 py-1 text-xs hover:bg-neutral-700 disabled:opacity-60"
+                                  className="kala-btn rounded-md px-3 py-1 text-xs"
                                 >
                                   Cancelar
                                 </button>
@@ -311,7 +311,7 @@ export default function ClientsPage() {
                                 type="button"
                                 onClick={() => onStartEdit(client)}
                                 disabled={rowSaving || rowDeleting}
-                                className="rounded-md bg-neutral-800 px-3 py-1 text-xs hover:bg-neutral-700 disabled:opacity-60"
+                                className="kala-btn rounded-md px-3 py-1 text-xs"
                               >
                                 Editar
                               </button>
@@ -320,7 +320,7 @@ export default function ClientsPage() {
                               type="button"
                               onClick={() => onDelete(client.id)}
                               disabled={rowSaving || rowDeleting || !client.id}
-                              className="rounded-md bg-red-500/20 px-3 py-1 text-xs font-medium text-red-300 hover:bg-red-500/30 disabled:opacity-60"
+                              className="kala-btn-danger rounded-md px-3 py-1 text-xs font-medium"
                             >
                               {rowDeleting ? "Eliminando..." : "Eliminar"}
                             </button>

@@ -1,5 +1,7 @@
+import { useEffect, useState } from "react"
 import { NavLink, Outlet, useNavigate } from "react-router-dom"
 import { clearToken, getCachedMe, getToken } from "../lib/auth"
+import { THEME_DARK, THEME_LIGHT, applyTheme, persistTheme, resolveInitialTheme } from "../lib/theme"
 
 const NAV_BY_ROLE = {
   admin: [
@@ -19,19 +21,27 @@ const NAV_BY_ROLE = {
 
 export default function AppLayout() {
   const nav = useNavigate()
+  const [theme, setTheme] = useState(() => resolveInitialTheme())
 
   function handleLogout() {
     clearToken()
     nav("/login", { replace: true })
   }
 
+  useEffect(() => {
+    applyTheme(theme)
+    persistTheme(theme)
+  }, [theme])
+
   const me = getCachedMe()
   const isAuthed = Boolean(getToken())
   const navItems = NAV_BY_ROLE[me?.role] || []
+  const isDark = theme === THEME_DARK
+  const toggleThemeLabel = isDark ? "Cambiar a modo claro" : "Cambiar a modo oscuro"
 
   return (
-    <div className="min-h-screen bg-neutral-950 text-neutral-100">
-      <header className="border-b border-neutral-800 bg-neutral-900/40">
+    <div className="min-h-screen" style={{ background: "var(--bg)", color: "var(--text)" }}>
+      <header className="border-b" style={{ borderColor: "var(--border)", background: "var(--card)" }}>
         <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-4 p-4">
           <div className="flex items-center gap-6">
             <div className="text-lg font-semibold">Turnero Kala</div>
@@ -42,7 +52,11 @@ export default function AppLayout() {
                     key={item.to}
                     to={item.to}
                     className={({ isActive }) =>
-                      `rounded-md px-3 py-1 ${isActive ? "bg-neutral-100 text-neutral-950" : "text-neutral-300 hover:bg-neutral-800"}`
+                      `rounded-md px-3 py-1 transition ${
+                        isActive
+                          ? "kala-btn-primary"
+                          : "kala-btn text-sm"
+                      }`
                     }
                   >
                     {item.label}
@@ -54,16 +68,33 @@ export default function AppLayout() {
 
           {isAuthed ? (
             <div className="flex items-center gap-4">
-              {me?.email ? <div className="text-sm text-neutral-300">{me.email}</div> : null}
+              <button
+                type="button"
+                onClick={() => setTheme((prev) => (prev === THEME_DARK ? THEME_LIGHT : THEME_DARK))}
+                className="kala-icon-btn"
+                aria-label={toggleThemeLabel}
+                title={toggleThemeLabel}
+              >
+                <span aria-hidden="true">{isDark ? "☀️" : "🌙"}</span>
+              </button>
+              {me?.email ? <div className="text-sm kala-muted">{me.email}</div> : null}
               <button
                 onClick={handleLogout}
-                className="rounded-md bg-neutral-800/60 px-3 py-1 text-sm hover:bg-neutral-800"
+                className="kala-btn rounded-md px-3 py-1 text-sm"
               >
                 Salir
               </button>
             </div>
           ) : (
-            <div />
+            <button
+              type="button"
+              onClick={() => setTheme((prev) => (prev === THEME_DARK ? THEME_LIGHT : THEME_DARK))}
+              className="kala-icon-btn"
+              aria-label={toggleThemeLabel}
+              title={toggleThemeLabel}
+            >
+              <span aria-hidden="true">{isDark ? "☀️" : "🌙"}</span>
+            </button>
           )}
         </div>
       </header>

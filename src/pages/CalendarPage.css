@@ -1,43 +1,43 @@
 .kala-calendar .fc {
-  --fc-border-color: #262626;
-  --fc-neutral-bg-color: rgba(23, 23, 23, 0.45);
+  --fc-border-color: var(--border);
+  --fc-neutral-bg-color: var(--card-soft);
   --fc-page-bg-color: transparent;
-  --fc-list-event-hover-bg-color: #171717;
-  --fc-today-bg-color: rgba(56, 189, 248, 0.08);
+  --fc-list-event-hover-bg-color: var(--card);
+  --fc-today-bg-color: color-mix(in srgb, var(--slot-available-bg) 20%, transparent);
   --fc-now-indicator-color: #f97316;
 }
 
 .kala-calendar .fc .fc-toolbar-title {
-  color: #f5f5f5;
+  color: var(--text);
   font-size: 1.05rem;
   font-weight: 600;
 }
 
 .kala-calendar .fc .fc-button {
-  background: rgba(38, 38, 38, 0.8);
-  border: 1px solid #404040;
-  color: #e5e5e5;
+  background: var(--btn-bg);
+  border: 1px solid var(--btn-border);
+  color: var(--btn-text);
   box-shadow: none;
   text-transform: capitalize;
 }
 
 .kala-calendar .fc .fc-button:hover,
 .kala-calendar .fc .fc-button:focus {
-  background: rgba(64, 64, 64, 0.9);
-  border-color: #525252;
+  background: var(--btn-bg-hover);
+  border-color: var(--btn-border);
 }
 
 .kala-calendar .fc .fc-button.fc-button-active {
-  background: #f5f5f5;
-  border-color: #f5f5f5;
-  color: #111827;
+  background: var(--btn-primary-bg);
+  border-color: var(--btn-primary-bg);
+  color: var(--btn-primary-text);
 }
 
 .kala-calendar .fc .fc-col-header-cell-cushion,
 .kala-calendar .fc .fc-timegrid-axis-cushion,
 .kala-calendar .fc .fc-timegrid-slot-label-cushion,
 .kala-calendar .fc .fc-timegrid-slot-label {
-  color: #cfcfcf;
+  color: var(--muted);
 }
 
 .kala-calendar .fc .fc-timegrid-slot,
@@ -45,7 +45,7 @@
 .kala-calendar .fc .fc-timegrid-divider,
 .kala-calendar .fc .fc-theme-standard td,
 .kala-calendar .fc .fc-theme-standard th {
-  border-color: #262626;
+  border-color: var(--border);
 }
 
 .kala-calendar .fc .fc-event {

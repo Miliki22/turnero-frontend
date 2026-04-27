@@ -44,20 +44,20 @@ export default function DashboardPage() {
   }
 
   return (
-    <div className="mx-auto max-w-4xl p-6">
+    <div className="mx-auto max-w-5xl space-y-6">
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-semibold">Dashboard</h1>
       </div>
 
-      <div className="mt-6 rounded-2xl border border-neutral-800 bg-neutral-900/40 p-5">
+      <div className="kala-card rounded-2xl p-5">
         {loading ? (
-          <p className="text-neutral-400">Cargando...</p>
+          <p className="kala-muted">Cargando...</p>
         ) : error ? (
           <p className="text-red-400">{error}</p>
         ) : me ? (
           <>
-            <p className="text-neutral-300">Sesión OK ✅</p>
-            <div className="mt-3 text-sm text-neutral-200">
+            <p className="kala-muted">Sesión OK ✅</p>
+            <div className="mt-3 text-sm">
               <div>
                 <strong>Email:</strong> {me.email}
               </div>
@@ -67,7 +67,7 @@ export default function DashboardPage() {
             </div>
           </>
         ) : (
-          <p className="text-neutral-400">No hay datos</p>
+          <p className="kala-muted">No hay datos</p>
         )}
       </div>
     </div>

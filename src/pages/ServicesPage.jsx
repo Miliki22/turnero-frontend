@@ -194,17 +194,17 @@ export default function ServicesPage() {
       <h1 className="text-2xl font-semibold">Servicios</h1>
 
       {isAdmin ? (
-        <section className="rounded-2xl border border-neutral-800 bg-neutral-900/40 p-5">
+        <section className="kala-card rounded-2xl p-5">
           <h2 className="text-lg font-medium">Crear servicio</h2>
           <form className="mt-4 grid gap-3 md:grid-cols-4" onSubmit={onCreate}>
             <input
-              className="rounded-xl border border-neutral-800 bg-neutral-950 px-3 py-2 outline-none"
+              className="kala-input rounded-xl px-3 py-2 outline-none"
               placeholder="Nombre"
               value={name}
               onChange={(e) => setName(e.target.value)}
             />
             <select
-              className="rounded-xl border border-neutral-800 bg-neutral-950 px-3 py-2 outline-none"
+              className="kala-input rounded-xl px-3 py-2 outline-none"
               value={durationMinutes}
               onChange={(e) => setDurationMinutes(e.target.value)}
             >
@@ -219,7 +219,7 @@ export default function ServicesPage() {
               type="number"
               min="0"
               step="0.01"
-              className="rounded-xl border border-neutral-800 bg-neutral-950 px-3 py-2 outline-none"
+              className="kala-input rounded-xl px-3 py-2 outline-none"
               placeholder="Precio"
               value={price}
               onChange={(e) => setPrice(e.target.value)}
@@ -227,7 +227,7 @@ export default function ServicesPage() {
             <button
               type="submit"
               disabled={!canSubmit || submitting}
-              className="rounded-xl bg-neutral-100 px-4 py-2 font-medium text-neutral-950 disabled:opacity-60"
+              className="kala-btn-primary rounded-xl px-4 py-2 font-medium"
             >
               {submitting ? "Creando..." : "Crear"}
             </button>
@@ -236,22 +236,22 @@ export default function ServicesPage() {
       ) : null}
 
       {!isAdmin ? (
-        <section className="rounded-2xl border border-neutral-800 bg-neutral-900/40 p-5">
+        <section className="kala-card rounded-2xl p-5">
           <div className="flex items-center justify-between">
             <h2 className="text-lg font-medium">Servicios disponibles</h2>
             <button
               type="button"
               onClick={() => loadServices({ manual: true })}
               disabled={loading || refreshing}
-              className="rounded-md bg-neutral-800/60 px-3 py-1 text-sm hover:bg-neutral-800 disabled:opacity-60"
+              className="kala-btn rounded-md px-3 py-1 text-sm"
             >
               {refreshing ? "Actualizando..." : "Actualizar"}
             </button>
           </div>
 
           {error ? <p className="mt-3 text-sm text-red-400">{error}</p> : null}
-          {loading ? <p className="mt-3 text-neutral-400">Cargando...</p> : null}
-          {!loading && services.length === 0 ? <p className="mt-3 text-neutral-400">Sin servicios disponibles.</p> : null}
+          {loading ? <p className="kala-muted mt-3">Cargando...</p> : null}
+          {!loading && services.length === 0 ? <p className="kala-muted mt-3">Sin servicios disponibles.</p> : null}
 
           {!loading && services.length > 0 ? (
             <div className="mt-4 grid gap-3 md:grid-cols-2">
@@ -260,18 +260,20 @@ export default function ServicesPage() {
                 return (
                   <article
                     key={service.id}
-                    className={`rounded-xl border p-4 ${selected ? "border-neutral-200 bg-neutral-100/10" : "border-neutral-800 bg-neutral-950/40"}`}
+                    className={`rounded-xl border p-4 ${
+                      selected ? "kala-card-soft" : "kala-card"
+                    }`}
                   >
                     <div className="flex items-start justify-between gap-3">
                       <div>
                         <h3 className="text-base font-medium">{service.name ?? "-"}</h3>
-                        <p className="mt-1 text-sm text-neutral-400">
+                        <p className="kala-muted mt-1 text-sm">
                           Duración: {service.duration_minutes ?? service.duration ?? "-"} min
                         </p>
-                        <p className="text-sm text-neutral-400">Precio: {service.price ?? "-"}</p>
+                        <p className="kala-muted text-sm">Precio: {service.price ?? "-"}</p>
                       </div>
                       {selected ? (
-                        <span className="rounded-full border border-neutral-600 px-2 py-0.5 text-xs text-neutral-300">
+                        <span className="rounded-full border px-2 py-0.5 text-xs" style={{ borderColor: "var(--border)" }}>
                           Seleccionado
                         </span>
                       ) : null}
@@ -281,7 +283,7 @@ export default function ServicesPage() {
                       <button
                         type="button"
                         onClick={() => onChooseClientService(service.id)}
-                        className="rounded-lg bg-neutral-100 px-3 py-1.5 text-sm font-medium text-neutral-950"
+                        className="kala-btn-primary rounded-lg px-3 py-1.5 text-sm font-medium"
                       >
                         Elegir turno
                       </button>
@@ -293,27 +295,27 @@ export default function ServicesPage() {
           ) : null}
         </section>
       ) : (
-        <section className="rounded-2xl border border-neutral-800 bg-neutral-900/40 p-5">
+        <section className="kala-card rounded-2xl p-5">
           <div className="flex items-center justify-between">
             <h2 className="text-lg font-medium">Listado</h2>
             <button
             type="button"
             onClick={() => loadServices({ manual: true })}
             disabled={loading || refreshing}
-            className="rounded-md bg-neutral-800/60 px-3 py-1 text-sm hover:bg-neutral-800 disabled:opacity-60"
+            className="kala-btn rounded-md px-3 py-1 text-sm"
           >
             {refreshing ? "Actualizando..." : "Actualizar"}
           </button>
         </div>
 
         {error ? <p className="mt-3 text-sm text-red-400">{error}</p> : null}
-        {loading ? <p className="mt-3 text-neutral-400">Cargando...</p> : null}
-        {!loading && services.length === 0 ? <p className="mt-3 text-neutral-400">Sin servicios.</p> : null}
+        {loading ? <p className="kala-muted mt-3">Cargando...</p> : null}
+        {!loading && services.length === 0 ? <p className="kala-muted mt-3">Sin servicios.</p> : null}
 
         {!loading && services.length > 0 ? (
           <div className="mt-4 overflow-x-auto">
             <table className="w-full text-left text-sm">
-              <thead className="text-neutral-400">
+              <thead className="kala-muted">
                 <tr>
                   <th className="w-20 min-w-20 px-2 pb-2 text-center">ID</th>
                   <th className="px-3 pb-2">Nombre</th>
@@ -329,12 +331,12 @@ export default function ServicesPage() {
                   const isEditing = editingId === service.id
 
                   return (
-                    <tr key={service.id ?? idx} className="border-t border-neutral-800 align-top">
+                    <tr key={service.id ?? idx} className="align-top" style={{ borderTop: "1px solid var(--border)" }}>
                       <td className="w-20 min-w-20 px-2 py-3 text-center">{service.id ?? "-"}</td>
                       <td className="px-3 py-3">
                         {isEditing ? (
                           <input
-                            className="w-full rounded-md border border-neutral-700 bg-neutral-950 px-2 py-1"
+                            className="kala-input w-full rounded-md px-2 py-1"
                             value={editValues.name}
                             onChange={(e) => setEditValues((prev) => ({ ...prev, name: e.target.value }))}
                           />
@@ -345,7 +347,7 @@ export default function ServicesPage() {
                       <td className="px-3 py-3">
                         {isEditing ? (
                           <select
-                            className="w-full rounded-md border border-neutral-700 bg-neutral-950 px-2 py-1"
+                            className="kala-input w-full rounded-md px-2 py-1"
                             value={editValues.durationMinutes}
                             onChange={(e) => setEditValues((prev) => ({ ...prev, durationMinutes: e.target.value }))}
                           >
@@ -366,7 +368,7 @@ export default function ServicesPage() {
                             type="number"
                             min="0"
                             step="0.01"
-                            className="w-full rounded-md border border-neutral-700 bg-neutral-950 px-2 py-1"
+                            className="kala-input w-full rounded-md px-2 py-1"
                             value={editValues.price}
                             onChange={(e) => setEditValues((prev) => ({ ...prev, price: e.target.value }))}
                           />
@@ -383,7 +385,7 @@ export default function ServicesPage() {
                                   type="button"
                                   onClick={() => onSaveEdit(service.id)}
                                   disabled={rowSaving || rowDeleting}
-                                  className="rounded-md bg-neutral-100 px-3 py-1 text-xs font-medium text-neutral-950 disabled:opacity-60"
+                                  className="kala-btn-primary rounded-md px-3 py-1 text-xs font-medium"
                                 >
                                   {rowSaving ? "Guardando..." : "Guardar"}
                                 </button>
@@ -391,7 +393,7 @@ export default function ServicesPage() {
                                   type="button"
                                   onClick={onCancelEdit}
                                   disabled={rowSaving || rowDeleting}
-                                  className="rounded-md bg-neutral-800 px-3 py-1 text-xs hover:bg-neutral-700 disabled:opacity-60"
+                                  className="kala-btn rounded-md px-3 py-1 text-xs"
                                 >
                                   Cancelar
                                 </button>
@@ -401,7 +403,7 @@ export default function ServicesPage() {
                                 type="button"
                                 onClick={() => onStartEdit(service)}
                                 disabled={rowSaving || rowDeleting}
-                                className="rounded-md bg-neutral-800 px-3 py-1 text-xs hover:bg-neutral-700 disabled:opacity-60"
+                                className="kala-btn rounded-md px-3 py-1 text-xs"
                               >
                                 Editar
                               </button>
@@ -410,7 +412,7 @@ export default function ServicesPage() {
                               type="button"
                               onClick={() => onDelete(service.id)}
                               disabled={rowSaving || rowDeleting || !service.id}
-                              className="rounded-md bg-red-500/20 px-3 py-1 text-xs font-medium text-red-300 hover:bg-red-500/30 disabled:opacity-60"
+                              className="kala-btn-danger rounded-md px-3 py-1 text-xs font-medium"
                             >
                               {rowDeleting ? "Eliminando..." : "Eliminar"}
                             </button>
