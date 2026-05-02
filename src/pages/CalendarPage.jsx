@@ -240,6 +240,26 @@ function toWeekStart(dateLike) {
   return startOfWeek(parseDate(dateLike) ?? new Date(), { weekStartsOn: 1 })
 }
 
+function isWeekend(dateLike) {
+  const date = parseDate(dateLike) ?? new Date()
+  const day = date.getDay()
+  return day === 0 || day === 6
+}
+
+function toNextMonday(dateLike) {
+  const date = parseDate(dateLike) ?? new Date()
+  const day = date.getDay()
+  if (day === 0) return toWeekStart(addDays(date, 1))
+  if (day === 6) return toWeekStart(addDays(date, 2))
+  return toWeekStart(date)
+}
+
+function getClientReferenceWeekStart(dateLike) {
+  const date = parseDate(dateLike) ?? new Date()
+  if (isWeekend(date)) return toNextMonday(date)
+  return toWeekStart(date)
+}
+
 export default function CalendarPage() {
   const token = getToken()
   const me = getCachedMe()
@@ -262,7 +282,7 @@ export default function CalendarPage() {
 
   const [clientServices, setClientServices] = useState([])
   const [selectedClientServiceId, setSelectedClientServiceId] = useState("")
-  const [selectedWeekStart, setSelectedWeekStart] = useState(() => toWeekStart(new Date()))
+  const [selectedWeekStart, setSelectedWeekStart] = useState(() => getClientReferenceWeekStart(new Date()))
   const [availabilityLoading, setAvailabilityLoading] = useState(false)
   const [availabilityRefreshing, setAvailabilityRefreshing] = useState(false)
   const [availabilityError, setAvailabilityError] = useState("")
@@ -270,6 +290,7 @@ export default function CalendarPage() {
   const [selectedSlot, setSelectedSlot] = useState(null)
   const [clientCreating, setClientCreating] = useState(false)
   const [clientSuccess, setClientSuccess] = useState("")
+  const [nowTs, setNowTs] = useState(() => Date.now())
 
   const canCreate = useMemo(() => {
     return isAdmin && selectedRange?.start && clientId && serviceId && !creating
@@ -377,7 +398,10 @@ export default function CalendarPage() {
       setSelectedSlot((prev) => {
         if (!prev) return null
         const stillAvailable = normalized.find(
-          (slot) => slot.startAt.toISOString() === prev.startAt && slot.status === "available"
+          (slot) =>
+            slot.startAt.toISOString() === prev.startAt &&
+            slot.status === "available" &&
+            slot.startAt.getTime() >= Date.now()
         )
         return stillAvailable
           ? {
@@ -472,6 +496,14 @@ export default function CalendarPage() {
     console.debug("[calendar-client] days generated", weekdayColumns.map((day) => day.date.toISOString()))
   }, [isAdmin, weekdayColumns])
 
+  useEffect(() => {
+    if (isAdmin) return
+
+    setNowTs(Date.now())
+    const timer = window.setInterval(() => setNowTs(Date.now()), 60 * 1000)
+    return () => window.clearInterval(timer)
+  }, [isAdmin])
+
   if (!isAdmin) {
     return (
       <div className="mx-auto max-w-6xl space-y-6">
@@ -518,7 +550,7 @@ export default function CalendarPage() {
                 </button>
                 <button
                   type="button"
-                  onClick={() => setSelectedWeekStart(toWeekStart(new Date()))}
+                  onClick={() => setSelectedWeekStart(getClientReferenceWeekStart(new Date()))}
                   className="kala-btn rounded-md px-3 py-1 text-sm"
                 >
                   Hoy
@@ -541,6 +573,9 @@ export default function CalendarPage() {
             </span>
             <span className="kala-muted inline-flex items-center gap-2">
               <span className="h-2.5 w-2.5 rounded-full" style={{ background: "var(--slot-occupied-bg)" }} /> Ocupado
+            </span>
+            <span className="kala-muted inline-flex items-center gap-2">
+              <span className="h-2.5 w-2.5 rounded-full" style={{ background: "var(--slot-empty-bg)" }} /> No disponible
             </span>
           </div>
 
@@ -570,31 +605,35 @@ export default function CalendarPage() {
                         const slot = availabilityByKey.get(key) || null
                         const available = slot?.status === "available"
                         const occupied = slot?.status === "occupied"
+                        const isPastAvailable = available && (slot?.startAt?.getTime() ?? 0) < nowTs
+                        const canSelect = available && !isPastAvailable
                         const selected =
-                          available && selectedSlot?.startAt && slot?.startAt.toISOString() === selectedSlot.startAt
+                          canSelect && selectedSlot?.startAt && slot?.startAt.toISOString() === selectedSlot.startAt
 
                         return (
                           <td key={key} className="px-1 py-1">
                             <button
                               type="button"
                               onClick={() => {
-                                if (!available || !slot) return
+                                if (!canSelect || !slot) return
                                 setSelectedSlot({
                                   startAt: slot.startAt.toISOString(),
                                   endAt: slot.endAt.toISOString(),
                                   serviceId: Number(selectedClientServiceId),
                                 })
                               }}
-                              disabled={!available}
+                              disabled={!canSelect}
                               className={`kala-slot ${
-                                available
+                                canSelect
                                   ? `kala-slot-available ${selected ? "kala-slot-selected" : ""}`
+                                  : isPastAvailable
+                                    ? "kala-slot-past"
                                   : occupied
                                     ? "kala-slot-occupied"
                                     : "kala-slot-empty"
                               }`}
                             >
-                              {available ? "Disponible" : occupied ? "Ocupado" : "—"}
+                              {canSelect ? "Disponible" : isPastAvailable ? "No disponible" : occupied ? "Ocupado" : "—"}
                             </button>
                           </td>
                         )

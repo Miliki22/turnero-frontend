@@ -41,7 +41,7 @@ export const router = createBrowserRouter([
         path: "/dashboard",
         element: (
           <RequireAuth>
-            <RequireRole allowedRoles={["admin"]} fallbackTo="/my-appointments">
+            <RequireRole allowedRoles={["admin"]} fallbackTo="/services">
               <DashboardPage />
             </RequireRole>
           </RequireAuth>
@@ -51,7 +51,7 @@ export const router = createBrowserRouter([
         path: "/clients",
         element: (
           <RequireAuth>
-            <RequireRole allowedRoles={["admin"]} fallbackTo="/my-appointments">
+            <RequireRole allowedRoles={["admin"]} fallbackTo="/services">
               <ClientsPage />
             </RequireRole>
           </RequireAuth>
@@ -61,7 +61,7 @@ export const router = createBrowserRouter([
         path: "/clients/:id",
         element: (
           <RequireAuth>
-            <RequireRole allowedRoles={["admin"]} fallbackTo="/my-appointments">
+            <RequireRole allowedRoles={["admin"]} fallbackTo="/services">
               <ClientPanelPage />
             </RequireRole>
           </RequireAuth>
@@ -71,7 +71,7 @@ export const router = createBrowserRouter([
         path: "/appointments",
         element: (
           <RequireAuth>
-            <RequireRole allowedRoles={["admin"]} fallbackTo="/my-appointments">
+            <RequireRole allowedRoles={["admin"]} fallbackTo="/services">
               <AppointmentsPage />
             </RequireRole>
           </RequireAuth>
@@ -97,7 +97,7 @@ export const router = createBrowserRouter([
         path: "/settings/integrations",
         element: (
           <RequireAuth>
-            <RequireRole allowedRoles={["admin"]} fallbackTo="/my-appointments">
+            <RequireRole allowedRoles={["admin"]} fallbackTo="/services">
               <IntegrationsPage />
             </RequireRole>
           </RequireAuth>

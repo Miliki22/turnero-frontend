@@ -2,6 +2,7 @@ import { useEffect, useState } from "react"
 import { NavLink, Outlet, useNavigate } from "react-router-dom"
 import { clearToken, getCachedMe, getToken } from "../lib/auth"
 import { THEME_DARK, THEME_LIGHT, applyTheme, persistTheme, resolveInitialTheme } from "../lib/theme"
+import { getBrand } from "../branding"
 
 const NAV_BY_ROLE = {
   admin: [
@@ -22,6 +23,7 @@ const NAV_BY_ROLE = {
 export default function AppLayout() {
   const nav = useNavigate()
   const [theme, setTheme] = useState(() => resolveInitialTheme())
+  const brand = getBrand()
 
   function handleLogout() {
     clearToken()
@@ -35,16 +37,17 @@ export default function AppLayout() {
 
   const me = getCachedMe()
   const isAuthed = Boolean(getToken())
+  const isClient = me?.role === "client"
   const navItems = NAV_BY_ROLE[me?.role] || []
   const isDark = theme === THEME_DARK
   const toggleThemeLabel = isDark ? "Cambiar a modo claro" : "Cambiar a modo oscuro"
 
   return (
-    <div className="min-h-screen" style={{ background: "var(--bg)", color: "var(--text)" }}>
+    <div className="flex min-h-screen flex-col" style={{ background: "var(--bg)", color: "var(--text)" }}>
       <header className="border-b" style={{ borderColor: "var(--border)", background: "var(--card)" }}>
         <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-4 p-4">
           <div className="flex items-center gap-6">
-            <div className="text-lg font-semibold">Turnero Kala</div>
+            <div className="text-lg font-semibold">{brand.appName}</div>
             {isAuthed ? (
               <nav className="flex items-center gap-2 text-sm">
                 {navItems.map((item) => (
@@ -99,9 +102,19 @@ export default function AppLayout() {
         </div>
       </header>
 
-      <main className="mx-auto max-w-6xl p-6">
+      <main className="mx-auto w-full max-w-6xl flex-1 p-6">
         <Outlet />
       </main>
+
+      {isAuthed && isClient ? (
+        <footer className="border-t" style={{ borderColor: "var(--border)", background: "var(--card)" }}>
+          <div className="mx-auto flex max-w-6xl flex-col gap-2 px-6 py-4 text-sm kala-muted">
+            <p>📞 +54 9 3489514293</p>
+            <p>✉️ kala.experiencia@gmail.com</p>
+            <p>📍 Capilla del Señor 420 - Campana - Bs As</p>
+          </div>
+        </footer>
+      ) : null}
     </div>
   )
 }

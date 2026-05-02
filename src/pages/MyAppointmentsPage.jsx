@@ -68,13 +68,20 @@ function getEndDate(appointment) {
   return new Date(start.getTime() + safeDuration * 60 * 1000)
 }
 
-function mapStatusToLabel(status) {
-  const normalized = String(status ?? "").toLowerCase()
-  if (normalized === "scheduled" || normalized === "programado") return "programado"
-  if (normalized === "cancelled" || normalized === "canceled") return "cancelado"
-  if (normalized === "completed") return "completado"
-  if (normalized === "no_show") return "ausente"
-  return status ?? "-"
+function normalizeBackendStatus(status) {
+  return String(status ?? "").toLowerCase().trim()
+}
+
+function getUiStatus(appointment, nowTs) {
+  const backendStatus = normalizeBackendStatus(appointment?.status)
+  if (backendStatus === "cancelled" || backendStatus === "canceled" || backendStatus === "cancelado") {
+    return "cancelado"
+  }
+
+  const end = getEndDate(appointment)
+  if (end && end.getTime() < nowTs) return "concluido"
+
+  return "programado"
 }
 
 function getServiceName(appointment, servicesById) {
@@ -92,38 +99,52 @@ export default function MyAppointmentsPage() {
   const [loading, setLoading] = useState(true)
   const [refreshing, setRefreshing] = useState(false)
   const [error, setError] = useState("")
+  const [showConcluded, setShowConcluded] = useState(false)
+
+  const parsedAppointments = useMemo(() => {
+    const nowTs = Date.now()
+
+    return appointments
+      .map((appointment) => {
+        const startDate = getStartDate(appointment)
+        if (!startDate) return null
+
+        return {
+          raw: appointment,
+          id: appointment.id,
+          serviceName: getServiceName(appointment, servicesById),
+          startDate,
+          endDate: getEndDate(appointment),
+          uiStatus: getUiStatus(appointment, nowTs),
+        }
+      })
+      .filter(Boolean)
+  }, [appointments, servicesById])
 
   const upcomingAppointments = useMemo(() => {
-    const now = Date.now()
-    return appointments
-      .filter((appointment) => {
-        const start = getStartDate(appointment)
-        return start && start.getTime() >= now
-      })
-      .sort((a, b) => {
-        const aDate = getStartDate(a)?.getTime() ?? 0
-        const bDate = getStartDate(b)?.getTime() ?? 0
-        return aDate - bDate
-      })
-  }, [appointments])
+    const nowTs = Date.now()
+
+    return parsedAppointments
+      .filter((appointment) => appointment.uiStatus === "programado" && appointment.startDate.getTime() >= nowTs)
+      .sort((a, b) => a.startDate.getTime() - b.startDate.getTime())
+  }, [parsedAppointments])
 
   const upcomingAppointment = useMemo(() => upcomingAppointments[0] ?? null, [upcomingAppointments])
   const nextUpcomingAppointments = useMemo(() => upcomingAppointments.slice(1), [upcomingAppointments])
 
-  const historyAppointments = useMemo(() => {
-    const now = Date.now()
-    return appointments
-      .filter((appointment) => {
-        const start = getStartDate(appointment)
-        return start && start.getTime() < now
-      })
-      .sort((a, b) => {
-        const aDate = getStartDate(a)?.getTime() ?? 0
-        const bDate = getStartDate(b)?.getTime() ?? 0
-        return bDate - aDate
-      })
+  const concludedAppointments = useMemo(() => {
+    return parsedAppointments
+      .filter((appointment) => appointment.uiStatus === "concluido")
+      .sort((a, b) => b.startDate.getTime() - a.startDate.getTime())
       .slice(0, 20)
-  }, [appointments])
+  }, [parsedAppointments])
+
+  const cancelledAppointments = useMemo(() => {
+    return parsedAppointments
+      .filter((appointment) => appointment.uiStatus === "cancelado")
+      .sort((a, b) => b.startDate.getTime() - a.startDate.getTime())
+      .slice(0, 20)
+  }, [parsedAppointments])
 
   async function loadServicesMap() {
     try {
@@ -157,7 +178,7 @@ export default function MyAppointmentsPage() {
   }, [])
 
   return (
-      <div className="mx-auto max-w-5xl space-y-6">
+    <div className="mx-auto max-w-5xl space-y-6">
       <h1 className="text-2xl font-semibold">Mis turnos</h1>
 
       <section className="kala-card rounded-2xl p-5">
@@ -169,16 +190,16 @@ export default function MyAppointmentsPage() {
         {!loading && upcomingAppointment ? (
           <div className="kala-card-soft mt-4 rounded-xl p-4 text-sm">
             <p>
-              <strong>Servicio:</strong> {getServiceName(upcomingAppointment, servicesById)}
+              <strong>Servicio:</strong> {upcomingAppointment.serviceName}
             </p>
             <p>
-              <strong>Fecha y hora:</strong> {formatDateTime(getStartDate(upcomingAppointment))}
+              <strong>Fecha y hora:</strong> {formatDateTime(upcomingAppointment.startDate)}
             </p>
             <p>
-              <strong>Fin:</strong> {formatDateTime(getEndDate(upcomingAppointment))}
+              <strong>Fin:</strong> {formatDateTime(upcomingAppointment.endDate)}
             </p>
             <p>
-              <strong>Estado:</strong> {mapStatusToLabel(upcomingAppointment.status)}
+              <strong>Estado:</strong> {upcomingAppointment.uiStatus}
             </p>
           </div>
         ) : null}
@@ -194,21 +215,18 @@ export default function MyAppointmentsPage() {
         {!loading && nextUpcomingAppointments.length > 0 ? (
           <div className="mt-4 space-y-2">
             {nextUpcomingAppointments.map((appointment, idx) => (
-              <article
-                key={appointment.id ?? `next-${idx}`}
-                className="kala-card-soft rounded-xl p-3 text-sm"
-              >
+              <article key={appointment.id ?? `next-${idx}`} className="kala-card-soft rounded-xl p-3 text-sm">
                 <p>
-                  <strong>Servicio:</strong> {getServiceName(appointment, servicesById)}
+                  <strong>Servicio:</strong> {appointment.serviceName}
                 </p>
                 <p>
-                  <strong>Inicio:</strong> {formatDateTime(getStartDate(appointment))}
+                  <strong>Inicio:</strong> {formatDateTime(appointment.startDate)}
                 </p>
                 <p>
-                  <strong>Fin:</strong> {formatDateTime(getEndDate(appointment))}
+                  <strong>Fin:</strong> {formatDateTime(appointment.endDate)}
                 </p>
                 <p>
-                  <strong>Estado:</strong> {mapStatusToLabel(appointment.status)}
+                  <strong>Estado:</strong> {appointment.uiStatus}
                 </p>
               </article>
             ))}
@@ -231,42 +249,90 @@ export default function MyAppointmentsPage() {
 
         {error ? <p className="mt-3 text-sm text-red-400">{error}</p> : null}
         {loading ? <p className="kala-muted mt-3">Cargando...</p> : null}
-        {!loading && historyAppointments.length === 0 ? (
-          <p className="kala-muted mt-3">No hay turnos históricos para mostrar.</p>
-        ) : null}
 
-        {!loading && historyAppointments.length > 0 ? (
-          <div className="mt-4 overflow-x-auto">
-            <table className="w-full text-left text-sm">
-              <thead className="kala-muted">
-                <tr>
-                  <th className="px-3 pb-2">ID</th>
-                  <th className="px-3 pb-2">Servicio</th>
-                  <th className="px-3 pb-2">Fecha</th>
-                  <th className="px-3 pb-2">Hora</th>
-                  <th className="px-3 pb-2">Estado</th>
-                </tr>
-              </thead>
-              <tbody>
-                {historyAppointments.map((appointment, idx) => {
-                  const startDate = getStartDate(appointment)
-                  const dateText = startDate ? DATE_FORMATTER.format(startDate).replaceAll("/", "-") : "-"
-                  const timeText = startDate ? TIME_FORMATTER.format(startDate) : "-"
+        {!loading ? (
+          <div className="mt-4 space-y-4">
+            <div>
+              <button
+                type="button"
+                onClick={() => setShowConcluded((prev) => !prev)}
+                className="kala-btn rounded-md px-3 py-1 text-sm"
+                aria-expanded={showConcluded}
+              >
+                {showConcluded ? "▼" : "▶"} Turnos concluidos ({concludedAppointments.length})
+              </button>
 
-                  return (
-                    <tr key={appointment.id ?? idx} style={{ borderTop: "1px solid var(--border)" }}>
-                      <td className="px-3 py-3">{appointment.id ?? "-"}</td>
-                      <td className="px-3 py-3">
-                        {getServiceName(appointment, servicesById)}
-                      </td>
-                      <td className="px-3 py-3">{dateText}</td>
-                      <td className="px-3 py-3">{timeText}</td>
-                      <td className="px-3 py-3">{mapStatusToLabel(appointment.status)}</td>
-                    </tr>
-                  )
-                })}
-              </tbody>
-            </table>
+              {concludedAppointments.length === 0 ? (
+                <p className="kala-muted mt-3">No hay turnos concluidos.</p>
+              ) : null}
+
+              {showConcluded && concludedAppointments.length > 0 ? (
+                <div className="mt-3 overflow-x-auto">
+                  <table className="w-full text-left text-sm">
+                    <thead className="kala-muted">
+                      <tr>
+                        <th className="px-3 pb-2">ID</th>
+                        <th className="px-3 pb-2">Servicio</th>
+                        <th className="px-3 pb-2">Fecha</th>
+                        <th className="px-3 pb-2">Hora</th>
+                        <th className="px-3 pb-2">Estado</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {concludedAppointments.map((appointment, idx) => {
+                        const dateText = DATE_FORMATTER.format(appointment.startDate).replaceAll("/", "-")
+                        const timeText = TIME_FORMATTER.format(appointment.startDate)
+
+                        return (
+                          <tr key={appointment.id ?? idx} style={{ borderTop: "1px solid var(--border)" }}>
+                            <td className="px-3 py-3">{appointment.id ?? "-"}</td>
+                            <td className="px-3 py-3">{appointment.serviceName}</td>
+                            <td className="px-3 py-3">{dateText}</td>
+                            <td className="px-3 py-3">{timeText}</td>
+                            <td className="px-3 py-3">{appointment.uiStatus}</td>
+                          </tr>
+                        )
+                      })}
+                    </tbody>
+                  </table>
+                </div>
+              ) : null}
+            </div>
+
+            {cancelledAppointments.length > 0 ? (
+              <div>
+                <h3 className="text-sm font-medium">Turnos cancelados ({cancelledAppointments.length})</h3>
+                <div className="mt-3 overflow-x-auto">
+                  <table className="w-full text-left text-sm">
+                    <thead className="kala-muted">
+                      <tr>
+                        <th className="px-3 pb-2">ID</th>
+                        <th className="px-3 pb-2">Servicio</th>
+                        <th className="px-3 pb-2">Fecha</th>
+                        <th className="px-3 pb-2">Hora</th>
+                        <th className="px-3 pb-2">Estado</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {cancelledAppointments.map((appointment, idx) => {
+                        const dateText = DATE_FORMATTER.format(appointment.startDate).replaceAll("/", "-")
+                        const timeText = TIME_FORMATTER.format(appointment.startDate)
+
+                        return (
+                          <tr key={appointment.id ?? `cancelled-${idx}`} style={{ borderTop: "1px solid var(--border)" }}>
+                            <td className="px-3 py-3">{appointment.id ?? "-"}</td>
+                            <td className="px-3 py-3">{appointment.serviceName}</td>
+                            <td className="px-3 py-3">{dateText}</td>
+                            <td className="px-3 py-3">{timeText}</td>
+                            <td className="px-3 py-3">{appointment.uiStatus}</td>
+                          </tr>
+                        )
+                      })}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            ) : null}
           </div>
         ) : null}
       </section>

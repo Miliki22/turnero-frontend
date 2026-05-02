@@ -9,21 +9,24 @@
     --text: #1d2923;
     --muted: #52635a;
     --border: #cfdad1;
+    --brand-primary: #0f5a46;
+    --brand-accent: #2ea27f;
+    --brand-danger: #8f1736;
     --btn-bg: #e4ece5;
     --btn-bg-hover: #d7e4d9;
     --btn-text: #1d2923;
     --btn-border: #c1d1c5;
-    --btn-primary-bg: #0f5a46;
-    --btn-primary-hover: #0b4a3a;
+    --btn-primary-bg: var(--brand-primary);
+    --btn-primary-hover: color-mix(in srgb, var(--brand-primary) 86%, black);
     --btn-primary-text: #ffffff;
-    --btn-danger-bg: #8f1736;
-    --btn-danger-hover: #7c142f;
-    --btn-danger-border: #7c142f;
+    --btn-danger-bg: var(--brand-danger);
+    --btn-danger-hover: color-mix(in srgb, var(--brand-danger) 86%, black);
+    --btn-danger-border: color-mix(in srgb, var(--brand-danger) 86%, black);
     --btn-danger-text: #ffffff;
     --btn-danger-disabled-bg: #b56a7f;
     --btn-danger-disabled-border: #b56a7f;
     --btn-danger-disabled-text: #fff7f9;
-    --slot-available-bg: #0f5a46;
+    --slot-available-bg: var(--brand-primary);
     --slot-available-bg-hover: #15715a;
     --slot-available-text: #ffffff;
     --slot-occupied-bg: #6a1f35;
@@ -31,8 +34,8 @@
     --slot-occupied-text: #ffffff;
     --slot-empty-bg: #e8eeea;
     --slot-empty-text: #617267;
-    --slot-selected-ring: #2ea27f;
-    --focus-ring: #2ea27f;
+    --slot-selected-ring: var(--brand-accent);
+    --focus-ring: var(--brand-accent);
   }
 
   .dark {
@@ -46,26 +49,26 @@
     --btn-bg-hover: #223129;
     --btn-text: #e6eee8;
     --btn-border: #34473c;
-    --btn-primary-bg: #198167;
-    --btn-primary-hover: #146c56;
+    --btn-primary-bg: color-mix(in srgb, var(--brand-primary) 85%, white);
+    --btn-primary-hover: color-mix(in srgb, var(--brand-primary) 72%, white);
     --btn-primary-text: #ffffff;
-    --btn-danger-bg: color-mix(in srgb, #b4233e 20%, transparent);
-    --btn-danger-hover: color-mix(in srgb, #b4233e 20%, transparent);
-    --btn-danger-border: color-mix(in srgb, #b4233e 45%, var(--border));
+    --btn-danger-bg: color-mix(in srgb, var(--brand-danger) 20%, transparent);
+    --btn-danger-hover: color-mix(in srgb, var(--brand-danger) 20%, transparent);
+    --btn-danger-border: color-mix(in srgb, var(--brand-danger) 45%, var(--border));
     --btn-danger-text: #ffd7de;
-    --btn-danger-disabled-bg: color-mix(in srgb, #b4233e 20%, transparent);
-    --btn-danger-disabled-border: color-mix(in srgb, #b4233e 45%, var(--border));
+    --btn-danger-disabled-bg: color-mix(in srgb, var(--brand-danger) 20%, transparent);
+    --btn-danger-disabled-border: color-mix(in srgb, var(--brand-danger) 45%, var(--border));
     --btn-danger-disabled-text: #ffd7de;
-    --slot-available-bg: #198167;
-    --slot-available-bg-hover: #1f9778;
+    --slot-available-bg: color-mix(in srgb, var(--brand-primary) 85%, white);
+    --slot-available-bg-hover: color-mix(in srgb, var(--brand-primary) 72%, white);
     --slot-available-text: #ffffff;
     --slot-occupied-bg: #7c263f;
     --slot-occupied-bg-hover: #8f2b48;
     --slot-occupied-text: #ffffff;
     --slot-empty-bg: #1c2621;
     --slot-empty-text: #95a79d;
-    --slot-selected-ring: #9cebcf;
-    --focus-ring: #9cebcf;
+    --slot-selected-ring: color-mix(in srgb, var(--brand-accent) 55%, white);
+    --focus-ring: color-mix(in srgb, var(--brand-accent) 55%, white);
   }
 }
 
@@ -214,6 +217,13 @@
     background: var(--slot-empty-bg);
     color: var(--slot-empty-text);
     cursor: not-allowed;
+  }
+
+  .kala-slot-past {
+    background: var(--slot-empty-bg);
+    color: var(--slot-empty-text);
+    cursor: not-allowed;
+    opacity: 0.9;
   }
 
   .kala-slot-selected {

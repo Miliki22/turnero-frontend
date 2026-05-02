@@ -29,6 +29,6 @@ export function setCachedMe(me) {
 
 export function getDefaultPathByRole(role) {
   if (role === "admin") return "/dashboard"
-  if (role === "client") return "/my-appointments"
+  if (role === "client") return "/services"
   return "/services"
 }
