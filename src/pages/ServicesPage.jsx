@@ -9,15 +9,54 @@ import {
   apiUpdateService,
 } from "../lib/api"
 import { getCachedMe, getToken, setCachedMe } from "../lib/auth"
+import armonizacionMasajesReikiImage from "../assets/branding/kala/services/Armonizacion_Masajes_Reiki.jpeg"
+import kalaEnCasaImage from "../assets/branding/kala/services/Kala_en_Casa.jpeg"
+import kalaForceImage from "../assets/branding/kala/services/Kala_Force.jpeg"
+import kalaFullImage from "../assets/branding/kala/services/Kala_Full.jpeg"
+import kalaRelaxImage from "../assets/branding/kala/services/Kala_Relax.jpeg"
+import liberacionReseteoImage from "../assets/branding/kala/services/Liberacion_Reseteo.jpeg"
 
 const ALLOWED_DURATIONS = ["60", "90", "120"]
 const CLIENT_SELECTED_SERVICE_KEY = "client_selected_service_id"
+const SERVICE_IMAGE_BY_KEY = {
+  armonizacion_masajes_reiki: armonizacionMasajesReikiImage,
+  kala_en_casa: kalaEnCasaImage,
+  kala_force: kalaForceImage,
+  kala_full: kalaFullImage,
+  kala_relax: kalaRelaxImage,
+  liberacion_reseteo: liberacionReseteoImage,
+}
 
 function getList(data) {
   if (Array.isArray(data)) return data
   if (Array.isArray(data?.items)) return data.items
   if (Array.isArray(data?.results)) return data.results
   return []
+}
+
+function normalizeServiceName(value) {
+  return String(value ?? "")
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase()
+    .replace(/[\s-]+/g, "_")
+    .replace(/[^\w]/g, "")
+}
+
+function getServiceImage(serviceName) {
+  const normalized = normalizeServiceName(serviceName)
+  if (SERVICE_IMAGE_BY_KEY[normalized]) return SERVICE_IMAGE_BY_KEY[normalized]
+
+  if (normalized.includes("armonizacion") || normalized.includes("masajes") || normalized.includes("reiki")) {
+    return SERVICE_IMAGE_BY_KEY.armonizacion_masajes_reiki
+  }
+  if (normalized.includes("en_casa")) return SERVICE_IMAGE_BY_KEY.kala_en_casa
+  if (normalized.includes("force")) return SERVICE_IMAGE_BY_KEY.kala_force
+  if (normalized.includes("full")) return SERVICE_IMAGE_BY_KEY.kala_full
+  if (normalized.includes("relax")) return SERVICE_IMAGE_BY_KEY.kala_relax
+  if (normalized.includes("liberacion") || normalized.includes("reseteo")) return SERVICE_IMAGE_BY_KEY.liberacion_reseteo
+
+  return SERVICE_IMAGE_BY_KEY.kala_relax
 }
 
 export default function ServicesPage() {
@@ -236,7 +275,29 @@ export default function ServicesPage() {
       ) : null}
 
       {!isAdmin ? (
-        <section className="kala-card rounded-2xl p-5">
+        <section className="space-y-4">
+          <div
+            className="rounded-2xl border p-6"
+            style={{
+              borderColor: "var(--border)",
+              background:
+                "linear-gradient(135deg, color-mix(in srgb, var(--bg) 96%, white) 0%, color-mix(in srgb, var(--card-soft) 94%, white) 55%, color-mix(in srgb, var(--brand-primary) 22%, var(--card-soft)) 100%)",
+            }}
+          >
+            <h2 className="text-2xl font-semibold">Reservá tu turno</h2>
+            <p className="mt-2 max-w-2xl text-sm md:text-base kala-muted">
+              Elegí el servicio ideal para vos y confirmá tu horario en pocos pasos.
+            </p>
+          </div>
+
+          <div
+            className="rounded-2xl border p-6 dark:bg-black/20"
+            style={{
+              borderColor: "var(--border)",
+              background:
+                "linear-gradient(135deg, color-mix(in srgb, var(--card) 95%, white) 0%, color-mix(in srgb, var(--card-soft) 92%, white) 100%)",
+            }}
+          >
           <div className="flex items-center justify-between">
             <h2 className="text-lg font-medium">Servicios disponibles</h2>
             <button
@@ -254,9 +315,10 @@ export default function ServicesPage() {
           {!loading && services.length === 0 ? <p className="kala-muted mt-3">Sin servicios disponibles.</p> : null}
 
           {!loading && services.length > 0 ? (
-            <div className="mt-4 grid gap-3 md:grid-cols-2">
+            <div className="mt-4 grid gap-4 md:grid-cols-2">
               {services.map((service) => {
                 const selected = String(service.id) === String(selectedClientServiceId)
+                const imageSrc = getServiceImage(service.name)
                 return (
                   <article
                     key={service.id}
@@ -264,8 +326,15 @@ export default function ServicesPage() {
                       selected ? "kala-card-soft" : "kala-card"
                     }`}
                   >
+                    <img
+                      src={imageSrc}
+                      alt={service.name ?? "Servicio"}
+                      className="h-40 w-full rounded-lg object-cover"
+                      loading="lazy"
+                    />
+
                     <div className="flex items-start justify-between gap-3">
-                      <div>
+                      <div className="mt-3">
                         <h3 className="text-base font-medium">{service.name ?? "-"}</h3>
                         <p className="kala-muted mt-1 text-sm">
                           Duración: {service.duration_minutes ?? service.duration ?? "-"} min
@@ -283,7 +352,7 @@ export default function ServicesPage() {
                       <button
                         type="button"
                         onClick={() => onChooseClientService(service.id)}
-                        className="kala-btn-primary rounded-lg px-3 py-1.5 text-sm font-medium"
+                        className="kala-btn-primary w-full rounded-lg px-4 py-2.5 text-sm font-medium md:w-auto"
                       >
                         Elegir turno
                       </button>
@@ -293,6 +362,7 @@ export default function ServicesPage() {
               })}
             </div>
           ) : null}
+          </div>
         </section>
       ) : (
         <section className="kala-card rounded-2xl p-5">

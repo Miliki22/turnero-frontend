@@ -3,19 +3,22 @@
 
 @layer theme {
   :root {
-    --bg: #f3f7f3;
-    --card: #ffffff;
-    --card-soft: #edf4ee;
-    --text: #1d2923;
-    --muted: #52635a;
-    --border: #cfdad1;
     --brand-primary: #0f5a46;
     --brand-accent: #2ea27f;
     --brand-danger: #8f1736;
-    --btn-bg: #e4ece5;
-    --btn-bg-hover: #d7e4d9;
-    --btn-text: #1d2923;
-    --btn-border: #c1d1c5;
+    --brand-bg: #f3f7f3;
+    --brand-surface: #ffffff;
+    --brand-surface-alt: #edf4ee;
+    --bg: var(--brand-bg);
+    --card: var(--brand-surface);
+    --card-soft: var(--brand-surface-alt);
+    --text: #221f1c;
+    --muted: #5f5751;
+    --border: color-mix(in srgb, var(--brand-primary) 22%, #bcaea2);
+    --btn-bg: color-mix(in srgb, var(--brand-surface-alt) 86%, white);
+    --btn-bg-hover: color-mix(in srgb, var(--brand-surface-alt) 70%, white);
+    --btn-text: var(--text);
+    --btn-border: color-mix(in srgb, var(--brand-primary) 26%, #d7c9bc);
     --btn-primary-bg: var(--brand-primary);
     --btn-primary-hover: color-mix(in srgb, var(--brand-primary) 86%, black);
     --btn-primary-text: #ffffff;
@@ -23,52 +26,52 @@
     --btn-danger-hover: color-mix(in srgb, var(--brand-danger) 86%, black);
     --btn-danger-border: color-mix(in srgb, var(--brand-danger) 86%, black);
     --btn-danger-text: #ffffff;
-    --btn-danger-disabled-bg: #b56a7f;
-    --btn-danger-disabled-border: #b56a7f;
+    --btn-danger-disabled-bg: color-mix(in srgb, var(--brand-danger) 70%, #d7a8b4);
+    --btn-danger-disabled-border: color-mix(in srgb, var(--brand-danger) 70%, #d7a8b4);
     --btn-danger-disabled-text: #fff7f9;
     --slot-available-bg: var(--brand-primary);
-    --slot-available-bg-hover: #15715a;
+    --slot-available-bg-hover: color-mix(in srgb, var(--brand-primary) 86%, black);
     --slot-available-text: #ffffff;
     --slot-occupied-bg: #6a1f35;
     --slot-occupied-bg-hover: #5a1a2d;
     --slot-occupied-text: #ffffff;
-    --slot-empty-bg: #e8eeea;
-    --slot-empty-text: #617267;
+    --slot-empty-bg: color-mix(in srgb, var(--brand-surface-alt) 70%, #cfc6be);
+    --slot-empty-text: #645b54;
     --slot-selected-ring: var(--brand-accent);
     --focus-ring: var(--brand-accent);
   }
 
   .dark {
-    --bg: #0b110e;
-    --card: #121b16;
-    --card-soft: #17221b;
-    --text: #edf4ef;
-    --muted: #9caea2;
-    --border: #2a3a31;
-    --btn-bg: #1a2620;
-    --btn-bg-hover: #223129;
-    --btn-text: #e6eee8;
-    --btn-border: #34473c;
-    --btn-primary-bg: color-mix(in srgb, var(--brand-primary) 85%, white);
-    --btn-primary-hover: color-mix(in srgb, var(--brand-primary) 72%, white);
+    --bg: #161517;
+    --card: #211f24;
+    --card-soft: #2a262f;
+    --text: #f3eff4;
+    --muted: #b6aeb8;
+    --border: #3e3743;
+    --btn-bg: #2a2630;
+    --btn-bg-hover: #35303d;
+    --btn-text: #f3eff4;
+    --btn-border: #4a4350;
+    --btn-primary-bg: color-mix(in srgb, var(--brand-primary) 78%, white);
+    --btn-primary-hover: color-mix(in srgb, var(--brand-primary) 66%, white);
     --btn-primary-text: #ffffff;
-    --btn-danger-bg: color-mix(in srgb, var(--brand-danger) 20%, transparent);
-    --btn-danger-hover: color-mix(in srgb, var(--brand-danger) 20%, transparent);
-    --btn-danger-border: color-mix(in srgb, var(--brand-danger) 45%, var(--border));
-    --btn-danger-text: #ffd7de;
-    --btn-danger-disabled-bg: color-mix(in srgb, var(--brand-danger) 20%, transparent);
-    --btn-danger-disabled-border: color-mix(in srgb, var(--brand-danger) 45%, var(--border));
-    --btn-danger-disabled-text: #ffd7de;
-    --slot-available-bg: color-mix(in srgb, var(--brand-primary) 85%, white);
-    --slot-available-bg-hover: color-mix(in srgb, var(--brand-primary) 72%, white);
+    --btn-danger-bg: color-mix(in srgb, var(--brand-danger) 48%, #2d1d26);
+    --btn-danger-hover: color-mix(in srgb, var(--brand-danger) 58%, #2d1d26);
+    --btn-danger-border: color-mix(in srgb, var(--brand-danger) 70%, var(--border));
+    --btn-danger-text: #fff1f4;
+    --btn-danger-disabled-bg: color-mix(in srgb, var(--brand-danger) 35%, #2d1d26);
+    --btn-danger-disabled-border: color-mix(in srgb, var(--brand-danger) 55%, var(--border));
+    --btn-danger-disabled-text: #ffd9e1;
+    --slot-available-bg: color-mix(in srgb, var(--brand-primary) 78%, white);
+    --slot-available-bg-hover: color-mix(in srgb, var(--brand-primary) 66%, white);
     --slot-available-text: #ffffff;
-    --slot-occupied-bg: #7c263f;
-    --slot-occupied-bg-hover: #8f2b48;
+    --slot-occupied-bg: color-mix(in srgb, var(--brand-danger) 55%, #2d1d26);
+    --slot-occupied-bg-hover: color-mix(in srgb, var(--brand-danger) 65%, #2d1d26);
     --slot-occupied-text: #ffffff;
-    --slot-empty-bg: #1c2621;
-    --slot-empty-text: #95a79d;
-    --slot-selected-ring: color-mix(in srgb, var(--brand-accent) 55%, white);
-    --focus-ring: color-mix(in srgb, var(--brand-accent) 55%, white);
+    --slot-empty-bg: #342f3a;
+    --slot-empty-text: #c5bdc8;
+    --slot-selected-ring: color-mix(in srgb, var(--brand-accent) 62%, white);
+    --focus-ring: color-mix(in srgb, var(--brand-accent) 62%, white);
   }
 }
 

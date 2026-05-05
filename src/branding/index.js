@@ -17,4 +17,7 @@ export function applyBrandToCssVars(brand) {
   rootStyle.setProperty("--brand-primary", brand?.colors?.primary || "")
   rootStyle.setProperty("--brand-accent", brand?.colors?.accent || "")
   rootStyle.setProperty("--brand-danger", brand?.colors?.danger || "")
+  rootStyle.setProperty("--brand-bg", brand?.colors?.bg || "")
+  rootStyle.setProperty("--brand-surface", brand?.colors?.surface || "")
+  rootStyle.setProperty("--brand-surface-alt", brand?.colors?.surfaceAlt || "")
 }

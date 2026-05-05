@@ -47,7 +47,16 @@ export default function AppLayout() {
       <header className="border-b" style={{ borderColor: "var(--border)", background: "var(--card)" }}>
         <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-4 p-4">
           <div className="flex items-center gap-6">
-            <div className="text-lg font-semibold">{brand.appName}</div>
+            <div className="flex items-center gap-3">
+              {brand.logo ? (
+                <img
+                  src={brand.logo}
+                  alt={`${brand.appName} logo`}
+                  className="h-8 w-auto object-contain"
+                />
+              ) : null}
+              <div className="text-lg font-semibold">{brand.appName}</div>
+            </div>
             {isAuthed ? (
               <nav className="flex items-center gap-2 text-sm">
                 {navItems.map((item) => (
@@ -107,11 +116,69 @@ export default function AppLayout() {
       </main>
 
       {isAuthed && isClient ? (
-        <footer className="border-t" style={{ borderColor: "var(--border)", background: "var(--card)" }}>
+        <footer className="border-t" style={{ borderColor: "var(--border)" }}>
           <div className="mx-auto flex max-w-6xl flex-col gap-2 px-6 py-4 text-sm kala-muted">
-            <p>📞 +54 9 3489514293</p>
-            <p>✉️ kala.experiencia@gmail.com</p>
-            <p>📍 Capilla del Señor 420 - Campana - Bs As</p>
+            {/* WhatsApp */}
+            <a
+              href="https://wa.me/5493489514293"
+              target="_blank"
+              rel="noreferrer"
+              className="inline-flex items-center gap-2 hover:underline"
+              aria-label="WhatsApp"
+              title="WhatsApp"
+            >
+              <img
+                src="/src/assets/icons/whatsapp.png"
+                alt="WhatsApp"
+                width={18}
+                height={18}
+                style={{ display: "block" }}
+              />
+              <span>+54 9 3489514287</span>
+            </a>
+
+              {/* Email */}
+              <a
+                href="mailto:kala.experiencia@gmail.com"
+                className="inline-flex items-center gap-2 hover:underline"
+                aria-label="Email"
+                title="Email"
+              >
+                <span aria-hidden="true">✉️</span>
+                <span>kala.experiencia@gmail.com</span>
+              </a>
+
+              {/* Dirección (Google Maps) */}
+              <a
+                href="https://www.google.com/maps/search/?api=1&query=Capilla%20del%20Se%C3%B1or%20420%20Campana%20Buenos%20Aires"
+                target="_blank"
+                rel="noreferrer"
+                className="inline-flex items-center gap-2 hover:underline"
+                aria-label="Ubicación"
+                title="Ubicación"
+              >
+                <span aria-hidden="true">📍</span>
+                <span>Capilla del Señor 420 - Campana - Bs As</span>
+              </a>
+
+              {/* Instagram */}
+              <a
+                href="https://instagram.com/experienciakala"
+                target="_blank"
+                rel="noreferrer"
+                className="inline-flex items-center gap-2 hover:underline"
+                aria-label="Instagram"
+                title="Instagram"
+              >
+                <img
+                  src="/src/assets/icons/instagram.png"
+                  alt="Instagram"
+                  width={18}
+                  height={18}
+                  style={{ display: "block" }}
+                />
+                <span>@experienciakala</span>
+              </a>
           </div>
         </footer>
       ) : null}
